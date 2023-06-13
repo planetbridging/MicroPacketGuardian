@@ -44,19 +44,6 @@ async function startup(isHttpsEnabled) {
     });
 
     app.use("/", proxyMiddleware);
-    /*
-    app.all("*", (req, res) => {
-      const targetUrl = `http://planetbridging.com:${targetServicePort}${req.originalUrl}`;
-      console.log("path: ", targetUrl);
-
-      proxy.web(req, res, { target: targetUrl });
-    });
-
-    proxy.on("proxyReq", (proxyReq, req, res, options) => {
-      // Capture the path of the original request
-      const originalPath = req.originalUrl;
-      console.log("Captured Path:", originalPath);
-    });*/
 
     var hServer;
     if (isHttpsEnabled) {
