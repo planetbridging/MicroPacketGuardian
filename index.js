@@ -4,14 +4,15 @@ const fs = require("fs");
 const https = require("https");
 const http = require("http");
 const path = require("path");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 require("dotenv").config();
 
 const app = express();
 const proxy = httpProxy.createProxyServer();
 
-const targetServicePort = 80;
 const port = process.env.PORT || 3000;
+const targetServiceUrl = process.env.externalService;
 
 (async () => {
   console.log("Welcome to Micro Packet Guardian");
@@ -29,8 +30,23 @@ async function startup(isHttpsEnabled) {
     var certificate;
     var credentials;
 
+    const proxyMiddleware = createProxyMiddleware({
+      target: targetServiceUrl,
+      changeOrigin: true,
+      onProxyReq: (proxyReq, req, res) => {
+        // Log the original URL
+        console.log("Original URL:", req.originalUrl);
+
+        // Log the target URL
+        const targetUrl = targetServiceUrl + req.originalUrl;
+        console.log("Target URL:", targetUrl);
+      },
+    });
+
+    app.use("/", proxyMiddleware);
+    /*
     app.all("*", (req, res) => {
-      const targetUrl = `http://localhost:${targetServicePort}${req.originalUrl}`;
+      const targetUrl = `http://planetbridging.com:${targetServicePort}${req.originalUrl}`;
       console.log("path: ", targetUrl);
 
       proxy.web(req, res, { target: targetUrl });
@@ -40,7 +56,7 @@ async function startup(isHttpsEnabled) {
       // Capture the path of the original request
       const originalPath = req.originalUrl;
       console.log("Captured Path:", originalPath);
-    });
+    });*/
 
     var hServer;
     if (isHttpsEnabled) {
