@@ -15,6 +15,16 @@ const port = process.env.PORT || 3000;
 const targetServiceUrl = process.env.externalService;
 
 var websitePaths = new Map();
+var acceptedFileTypes = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".svg",
+  ".css",
+  ".js",
+  ".html",
+];
 
 (async () => {
   console.log("Welcome to Micro Packet Guardian");
@@ -60,26 +70,41 @@ async function startup(isHttpsEnabled) {
         //console.log("Original URL:", req.originalUrl);
 
         // Log the target URL
-        const targetUrl = targetServiceUrl + req.originalUrl;
-        //console.log("Target URL:", targetUrl);
-
-        if (websitePaths.has(mainPath)) {
-          var tmpPathReq = websitePaths.get(mainPath);
-          if (!tmpPathReq.includes(req.originalUrl)) {
-            const combinedArray = [
-              ...new Set([...tmpPathReq, ...[req.originalUrl]]),
-            ];
-            websitePaths.set(mainPath, combinedArray);
+        //const targetUrl = targetServiceUrl + req.originalUrl;
+        //console.log(req.originalUrl, mainPath);
+        //console.log(req.originalUrl);
+        var acceptedFileChecking = checkPathForAcceptedFileType(
+          req.originalUrl
+        );
+        if (acceptedFileChecking) {
+          if (mainPath.includes("?")) {
+            const questionMarkIndex = mainPath.indexOf("?");
+            const beforeQuestionMark =
+              questionMarkIndex !== -1
+                ? mainPath.substring(0, questionMarkIndex)
+                : mainPath;
+            mainPath = beforeQuestionMark;
           }
-        } else {
-          websitePaths.set(mainPath, [req.originalUrl]);
+          if (mainPath != "") {
+            if (websitePaths.has(mainPath)) {
+              var tmpPathReq = websitePaths.get(mainPath);
+              if (!tmpPathReq.includes(req.originalUrl)) {
+                const combinedArray = [
+                  ...new Set([...tmpPathReq, ...[req.originalUrl]]),
+                ];
+                websitePaths.set(mainPath, combinedArray);
+              }
+            } else {
+              websitePaths.set(mainPath, [req.originalUrl]);
+            }
+          }
         }
 
-        //console.log(websitePaths);
+        console.log(websitePaths);
 
-        for (const [key, value] of websitePaths) {
+        /*for (const [key, value] of websitePaths) {
           console.log(key, value);
-        }
+        }*/
       },
     });
 
@@ -109,4 +134,14 @@ function isImageResource(resourceUrl) {
   const fileExtension = extname(resourcePath);
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"];
   return imageExtensions.includes(fileExtension.toLowerCase());
+}
+
+function checkPathForAcceptedFileType(filePath) {
+  if (filePath.includes(".")) {
+    const fileType = path.extname(filePath);
+    if (acceptedFileTypes.includes(fileType)) {
+      return true;
+    }
+  }
+  return false;
 }
