@@ -14,6 +14,8 @@ const proxy = httpProxy.createProxyServer();
 const port = process.env.PORT || 3000;
 const targetServiceUrl = process.env.externalService;
 
+var websitePaths = new Map();
+
 (async () => {
   console.log("Welcome to Micro Packet Guardian");
   const isHttpsEnabled = process.env.PROTOCOL === "https";
@@ -21,6 +23,15 @@ const targetServiceUrl = process.env.externalService;
   console.log("Server is running on port:", port);
 
   // Add your startup code or any other logic here
+
+  app.get("/paths", (req, res) => {
+    var lst = [];
+    for (const [key, value] of websitePaths) {
+      lst.push([key, value]);
+    }
+
+    res.send(lst);
+  });
   startup(isHttpsEnabled);
 })();
 
@@ -34,12 +45,41 @@ async function startup(isHttpsEnabled) {
       target: targetServiceUrl,
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
+        //const userId = req;
+        //console.log(userId);
+        var tmpHeaders = proxyReq.getHeaders();
+        //console.log("Raw Headers:", tmpHeaders);
+        var mainPath = "";
+        var keyHeaders = Object.keys(tmpHeaders);
+        //console.log(tmpHeaders);
+        if (keyHeaders.includes("referer")) {
+          mainPath = tmpHeaders["referer"];
+        }
+
         // Log the original URL
-        console.log("Original URL:", req.originalUrl);
+        //console.log("Original URL:", req.originalUrl);
 
         // Log the target URL
         const targetUrl = targetServiceUrl + req.originalUrl;
-        console.log("Target URL:", targetUrl);
+        //console.log("Target URL:", targetUrl);
+
+        if (websitePaths.has(mainPath)) {
+          var tmpPathReq = websitePaths.get(mainPath);
+          if (!tmpPathReq.includes(req.originalUrl)) {
+            const combinedArray = [
+              ...new Set([...tmpPathReq, ...[req.originalUrl]]),
+            ];
+            websitePaths.set(mainPath, combinedArray);
+          }
+        } else {
+          websitePaths.set(mainPath, [req.originalUrl]);
+        }
+
+        //console.log(websitePaths);
+
+        for (const [key, value] of websitePaths) {
+          console.log(key, value);
+        }
       },
     });
 
