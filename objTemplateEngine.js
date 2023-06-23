@@ -44,8 +44,19 @@ class objTemplateEngine {
         .tab-content{
             width: calc(90vw - 20px);
         }
+
+        #testChart {
+          top: 100px;
+          width: 600px;
+          height: 400px;
+          margin: 0 auto;
+        }
         </style>
+        <script defer src="/socket.io/socket.io.js"></script>
+        <script src="/echarts.min.js
+"></script>
         <script defer src="/js/Home.js"></script>
+        
           </head>
             <body>
             <div id="main">`;
@@ -68,7 +79,7 @@ class objTemplateEngine {
 
    
 
-   
+   <div id="testChart"></div>
 
  
     

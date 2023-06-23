@@ -6,14 +6,23 @@ const http = require("http");
 const path = require("path");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const JavaScriptObfuscator = require("javascript-obfuscator");
+const socketIO = require("socket.io");
+const crypto = require("crypto");
 
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
+
+function calculateMD5Hash(data) {
+  const md5Hash = crypto.createHash("md5");
+  md5Hash.update(data);
+  return md5Hash.digest("hex");
+}
 
 class objMonitor {
   isHttpsEnabled = "";
   hServer;
   websitePaths = new Map();
+  websitePathsUUID = "";
   acceptedFileTypes = [
     ".jpg",
     ".jpeg",
@@ -29,21 +38,63 @@ class objMonitor {
   appUI;
   objTmpEngine;
   fileMap;
+  io;
+  uiServer;
   constructor(isHttpsEnabled, targetServiceUrl) {
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
     this.appUI = express();
+    this.uiServer = http.createServer(this.appUI);
+    this.io = socketIO(this.uiServer);
     this.objTmpEngine = new objTemplateEngine();
     this.fileMap = loadFilesIntoMap("./public");
     this.listenerPaths();
     this.setupListener();
+
     this.setupUI();
   }
+
+  updateUUIDForWebsiteMap() {
+    const mapString = JSON.stringify(Array.from(this.websitePaths));
+    const md5String = calculateMD5Hash(mapString);
+    this.websitePathsUUID = md5String;
+  }
+
+  async setupWebSocket() {
+    this.io.on("connection", (socket) => {
+      console.log("A user connected");
+
+      const timer = setInterval(() => {
+        socket.emit("websitePathsUUID", this.websitePathsUUID);
+      }, 1000);
+
+      socket.on("websitePaths", (message) => {
+        const mapString = JSON.stringify(Array.from(this.websitePaths));
+        this.io.emit("websitePaths", mapString);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("A user disconnected");
+      });
+    });
+  }
+
   async setupUI() {
     try {
-      //this.appUI.use(express.static(path.join(__dirname, "public")));
-
+      this.appUI.use(express.static(path.join(__dirname, "publicExpress")));
+      this.appUI.get("/socket.io/socket.io.js", (req, res) => {
+        res.sendFile(
+          path.join(
+            __dirname,
+            "node_modules",
+            "socket.io",
+            "client-dist",
+            "socket.io.js"
+          )
+        );
+      });
+      this.setupWebSocket();
       /*app.get("/pages/Home.js", (req, res) => {
   res.sendFile(__dirname + "/pages/Home.js");
 });*/
@@ -121,7 +172,7 @@ class objMonitor {
         }
       });
 
-      this.appUI.listen(58123, function () {
+      this.uiServer.listen(58123, function () {
         console.log("server running on 58123");
       });
     } catch (error) {
@@ -183,7 +234,9 @@ class objMonitor {
             }
           }
 
-          console.log(this.websitePaths);
+          //console.log(this.websitePaths);
+
+          this.updateUUIDForWebsiteMap();
 
           /*for (const [key, value] of websitePaths) {
               console.log(key, value);
