@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>tsParticles Demo</title>
+    <style>
+        #particles-js {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <!-- Include tsParticles library -->
+    <script src="./particles.min.js"></script>
+
+    <!-- Initialize tsParticles -->
+    <script>
+        particlesJS.load('particles-js', './stars.json', function() {
+            console.log('particles.js loaded - callback');
+        });
+    </script>
+</body>
+</html>

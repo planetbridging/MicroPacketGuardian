@@ -5,6 +5,10 @@ const https = require("https");
 const http = require("http");
 const path = require("path");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const JavaScriptObfuscator = require("javascript-obfuscator");
+
+var objTemplateEngine = require("./objTemplateEngine");
+const loadFilesIntoMap = require("./load");
 
 class objMonitor {
   isHttpsEnabled = "";
@@ -22,12 +26,107 @@ class objMonitor {
   ];
   targetServiceUrl;
   appListener;
+  appUI;
+  objTmpEngine;
+  fileMap;
   constructor(isHttpsEnabled, targetServiceUrl) {
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
+    this.appUI = express();
+    this.objTmpEngine = new objTemplateEngine();
+    this.fileMap = loadFilesIntoMap("./public");
     this.listenerPaths();
     this.setupListener();
+    this.setupUI();
+  }
+  async setupUI() {
+    try {
+      //this.appUI.use(express.static(path.join(__dirname, "public")));
+
+      /*app.get("/pages/Home.js", (req, res) => {
+  res.sendFile(__dirname + "/pages/Home.js");
+});*/
+
+      // Configure session middleware
+
+      //userSessions.sessions(app);
+
+      this.appUI.get("/js/Home.js", (req, res) => {
+        fs.readFile(__dirname + "/pages/Home.ts", "utf8", function (err, data) {
+          if (err) {
+            res.status(500).send("Error reading file");
+            return;
+          }
+
+          var obfuscatedCode = JavaScriptObfuscator.obfuscate(data);
+
+          res.type(".js");
+          res.send(obfuscatedCode._obfuscatedCode);
+          // res.send(data);
+        });
+      });
+
+      this.appUI.get("*", async (req, res) => {
+        var filePath = req.path;
+        const ext = path.extname(filePath);
+        //console.log(ext);
+        if (ext === ".js") {
+          res.type("application/javascript");
+        } else if (ext === ".css") {
+          res.type("text/css");
+        } else if (ext === ".html") {
+          res.type("text/html");
+        }
+
+        //console.log(filePath);
+
+        var data = this.objTmpEngine.topPage();
+
+        data += this.objTmpEngine.mainMenu();
+
+        if (filePath == "/") {
+          //filePath = "index.html";
+
+          //data += this.objTmpEngine.jToH(templateBanner());
+
+          data += this.objTmpEngine.bottomPage();
+
+          res.send(data);
+          return;
+        }
+
+        /*for (let [key, value] of this.fileMap) {
+          console.log(`Key: ${key}`);
+        }*/
+
+        if (this.fileMap.has(filePath)) {
+          const fileData = this.fileMap.get(filePath);
+          res.send(fileData);
+          return;
+        } else {
+          try {
+            let str = filePath;
+            str = str.substring(1);
+            if (this.fileMap.has(str)) {
+              const fileData = this.fileMap.get(str);
+              res.send(fileData);
+              return;
+            }
+
+            console.log(this.fileMap.has(str), "ok:" + str);
+          } catch {}
+
+          res.status(404).send("File not found");
+        }
+      });
+
+      this.appUI.listen(58123, function () {
+        console.log("server running on 58123");
+      });
+    } catch (error) {
+      console.error("Error during startup:", error);
+    }
   }
   async setupListener() {
     try {

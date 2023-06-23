@@ -12,6 +12,8 @@
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "http-proxy": "^1.18.1",
-    "http-proxy-middleware": "^2.0.6"
+    "http-proxy-middleware": "^2.0.6",
+    "javascript-obfuscator": "^4.0.2",
+    "node-json2html": "^2.2.3"
   }
 }
