@@ -45,8 +45,7 @@ class objTemplateEngine {
             width: calc(90vw - 20px);
         }
 
-        #testChart {
-          top: 100px;
+        .showDiagramTemp1 {
           width: 600px;
           height: 400px;
           margin: 0 auto;
@@ -77,9 +76,6 @@ class objTemplateEngine {
         });
     </script>
 
-   
-
-   <div id="testChart"></div>
 
  
     

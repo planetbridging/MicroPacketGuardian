@@ -11,6 +11,7 @@ const crypto = require("crypto");
 
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
+var pageMapTemplates = require("./pageMappingTemplates");
 
 function calculateMD5Hash(data) {
   const md5Hash = crypto.createHash("md5");
@@ -140,6 +141,10 @@ class objMonitor {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
+
+          var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
+          //console.log(pageMapTemp1);
+          data += this.objTmpEngine.jToH(pageMapTemp1);
 
           data += this.objTmpEngine.bottomPage();
 

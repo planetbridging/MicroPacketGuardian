@@ -60,7 +60,61 @@ function parseUrl(url) {
     return root;
 }
 
+function parseUrls(urls) {
+    let root = {};
+
+    urls.forEach(url => {
+        let parts = url.split('/');
+        parts.shift(); // remove the first empty element from split
+
+        let currentLevel = root;
+
+        for (let i = 0; i < parts.length; i++) {
+            let newNode = { name: '/' + parts[i], children: [], value: 10 };
+            let found = currentLevel['/' + parts[i]];
+
+            if (!found) {
+                if (i === 0) {
+                    root['/' + parts[i]] = newNode;
+                    currentLevel = root['/' + parts[i]];
+                } else {
+                    currentLevel.children.push(newNode);
+                    currentLevel['/' + parts[i]] = newNode;
+                    currentLevel = newNode;
+                }
+            } else {
+                currentLevel = found;
+            }
+        }
+    });
+
+    return Object.values(root);
+}
+
+//console.log(parseUrls(['/bob/imgs/pic1.jpg', '/bob/imgs/pic2.jpg']));
+
+
+//console.log(parseUrls(['/bob/imgs/pic1.jpg', '/bob/imgs/pic2.jpg']));
+
+
 //console.log(parseUrl('/bob/hello/file.js'));
+
+function refreshChart(title,lstData,importChart,charType){
+    var options = {
+        title: {
+        text: title
+        },
+        series: {
+        type: charType,
+        data: lstData
+        }
+    };
+
+    //console.log(options);
+
+    // Set chart options and render the chart
+    importChart.setOption(options);
+}
 
   
 
@@ -74,8 +128,11 @@ document.addEventListener("DOMContentLoaded", function() {
     var websitePathsMap = [];
 
     //echart variables
-    var chartContainer = document.getElementById('testChart');
-    var chart = echarts.init(chartContainer);
+    var uniqFilesWebMap = document.getElementById('uniqFiles');
+    var chartUniqFilesWebMap = echarts.init(uniqFilesWebMap);
+
+    var uniqPagesWebMap = document.getElementById('uniqPages');
+    var chartUniqPagesWebMap = echarts.init(uniqPagesWebMap);
 
     if (button) {
         button.addEventListener("click", () => component.increment());
@@ -92,27 +149,42 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(msg);
         websitePathsMap = msg;
         var tmp = JSON.parse(websitePathsMap);
-        var lstData = [];
-        
+        var lstDataUniqFiles = [];
+        var lstDataUniqPages = [];
+        var lstNewChildrenUniqFiles = [];
 
         for(var d in tmp){
             const url = new URL(tmp[d][0]);
             const rootURL = url.pathname;
-            console.log(rootURL);
+            //console.log(rootURL);
             var row = {name: rootURL};
             var lstChildren = [];
             for(var r in tmp[d][1]){
 
                 var tmpChildren = parseUrl(tmp[d][1][r]);
-                console.log(tmpChildren);
+                //console.log(tmpChildren);
 
                 lstChildren.push(tmpChildren);
             }
             row["children"] = lstChildren;
-            lstData.push(row);
+            lstDataUniqPages.push(row);
         }
 
-        console.log(lstData);
+
+        //this loads uniq files
+        for(var d in tmp){
+            lstNewChildrenUniqFiles.push(tmp[d][0]);
+            for(var l in tmp[d][1]){
+                lstNewChildrenUniqFiles.push(tmp[d][1][l]);
+            }
+        }
+        //console.log(lstNewChildren);
+        lstDataUniqFiles = parseUrls(lstNewChildrenUniqFiles);
+
+        refreshChart("Website map unique pages",lstDataUniqPages,chartUniqPagesWebMap,'sunburst');
+        refreshChart("Website map unique files",lstDataUniqFiles,chartUniqFilesWebMap,'sunburst');
+        
+        //console.log(lstData);
 
           // Define chart options example
         /*var options = {
@@ -155,20 +227,26 @@ document.addEventListener("DOMContentLoaded", function() {
             },
         ]*/
 
-        var options = {
-            title: {
-            text: 'Website map'
+        /*
+[
+            {
+                name: '/bob',
+                children: [
+                    { name: '/imgs',
+                        children:[
+                            {
+                                name:"/pic1.jpg"
+                            },
+                            {
+                                name:"/pic2.jpg"
+                            }
+                        ]
+                    },
+                ]
             },
-            series: {
-            type: 'sunburst',
-            data: lstData
-            }
-        };
+        ]*/
 
-        console.log(options);
-
-        // Set chart options and render the chart
-        chart.setOption(options);
+  
     });
 
 
