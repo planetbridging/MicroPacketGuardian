@@ -1,6 +1,18 @@
-# Micro Sensor SIEM
+# Micro Packet Guardian
 
-The Micro Sensor SIEM (Security Information and Event Management) is a robust system designed to monitor network traffic, capture packets, and apply advanced security analysis techniques. This project is tailored to provide real-time visibility into network activities, extract relevant information from packets, and generate valuable insights for network security analysis.
+The Micro SIEM (Security Information and Event Management) is a robust system designed to monitor network traffic, capture packets, and apply advanced security analysis techniques. This project is tailored to provide real-time visibility into network activities, extract relevant information from packets, and generate valuable insights for network security analysis.
+
+From building a WAF, live monitoring with elements of SIEM which is seperated into 3 sections:
+
+- **Section 1**: Show case upon a client loading the page it updates the paths it took and will eventually count how many times those sections of the website has loaded to give visual representation of what's happening on the website in realtime. Great to instantly visualize DDOS of constantly loading pages or simply want to see how the website is loading what sections.
+
+Done - Showing realtime events from back through to frontend via chart/diagram.
+Dev - Capturing IP and highlighting country, type of device and so on
+Dev - Saving data in the cache to database to scrub through timeline
+
+- **Section 2**: Is to identifying get/post requests and show the input requests from the user to see if users are tempering with the website like input manipulation (xss, sql injection and others).
+
+- **Section 3**: Last using pcap capturing packets to grab incoming and outgoing traffic eventually with pattern recognition and/or detection of malicious content. At least capture the event via .pcap file correlating with section 1 and 2.
 
 ## Features (Indevelopment)
 
