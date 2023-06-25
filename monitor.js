@@ -23,7 +23,11 @@ class objMonitor {
   isHttpsEnabled = "";
   hServer;
   websitePaths = new Map();
+  websitePathCount = new Map();
+  websiteFileCount = new Map();
   websitePathsUUID = "";
+  websitePathCountUUID = "";
+  websiteFileCountUUID = "";
   acceptedFileTypes = [
     ".jpg",
     ".jpeg",
@@ -56,10 +60,21 @@ class objMonitor {
     this.setupUI();
   }
 
-  updateUUIDForWebsiteMap() {
-    const mapString = JSON.stringify(Array.from(this.websitePaths));
+  mapToMd5uuid(lstMap) {
+    const mapString = JSON.stringify(Array.from(lstMap));
     const md5String = calculateMD5Hash(mapString);
-    this.websitePathsUUID = md5String;
+    return md5String;
+  }
+
+  updateUUIDForWebsiteMap() {
+    const md5StringwebsitePaths = mapToMd5uuid(this.websitePaths);
+    this.websitePathsUUID = md5StringwebsitePaths;
+
+    const md5StringwebsitePathCount = mapToMd5uuid(this.websitePathCount);
+    this.websitePathCountUUID = md5StringwebsitePathCount;
+
+    const md5StringwebsiteFileCount = mapToMd5uuid(this.websiteFileCount);
+    this.websiteFileCountUUID = md5StringwebsiteFileCount;
   }
 
   async setupWebSocket() {
@@ -68,10 +83,20 @@ class objMonitor {
 
       const timer = setInterval(() => {
         socket.emit("websitePathsUUID", this.websitePathsUUID);
+        socket.emit("websitePathCountUUID", this.websitePathCountUUID);
+        socket.emit("websiteFileCountUUID", this.websiteFileCountUUID);
       }, 1000);
 
       socket.on("websitePaths", (message) => {
         const mapString = JSON.stringify(Array.from(this.websitePaths));
+        const mapStringPathCount = JSON.stringify(
+          Array.from(this.websitePathCount)
+        );
+        const mapStringFileCount = JSON.stringify(
+          Array.from(this.websiteFileCount)
+        );
+        this.io.emit("websitePathCount", mapStringPathCount);
+        this.io.emit("websiteFileCount", mapStringFileCount);
         this.io.emit("websitePaths", mapString);
       });
 
@@ -145,6 +170,10 @@ class objMonitor {
           var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
           //console.log(pageMapTemp1);
           data += this.objTmpEngine.jToH(pageMapTemp1);
+
+          var pageMapTemp1Tbl = pageMapTemplates.showMapTables();
+          //console.log(pageMapTemp1);
+          data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
 
           data += this.objTmpEngine.bottomPage();
 
@@ -225,6 +254,29 @@ class objMonitor {
               mainPath = beforeQuestionMark;
             }
             if (mainPath != "") {
+              console.log(mainPath, req.originalUrl);
+
+              //websitePathCount = new Map();
+              //websiteFileCount = new Map();
+
+              if (this.websitePathCount.has(mainPath)) {
+                var count = this.websitePathCount.get(mainPath);
+                count += 1;
+                this.websitePathCount.set(mainPath, count);
+              } else {
+                this.websitePathCount.set(mainPath, 1);
+              }
+
+              if (this.websiteFileCount.has(mainPath + req.originalUrl)) {
+                var count = this.websiteFileCount.get(
+                  mainPath + req.originalUrl
+                );
+                count += 1;
+                this.websiteFileCount.set(mainPath + req.originalUrl, count);
+              } else {
+                this.websiteFileCount.set(mainPath + req.originalUrl, 1);
+              }
+
               if (this.websitePaths.has(mainPath)) {
                 var tmpPathReq = this.websitePaths.get(mainPath);
                 if (!tmpPathReq.includes(req.originalUrl)) {

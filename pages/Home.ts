@@ -9,6 +9,7 @@
 });*/
 
 
+
 class stateObj {
     ostate;
     oelement;
@@ -47,7 +48,16 @@ function parseUrl(url) {
     let root = {};
     let currentLevel = root;
     for (let i = 0; i < parts.length; i++) {
+        /*console.log('/' + parts[i],url);
+        var count = 0;
+        if(websiteFileCount.has(url)){
+            count = websiteFileCount.get(url);
+        }*/
+        /*var websitePathCount = new Map();
+var websiteFileCount = new Map();*/
+
         let newNode = { name: '/' + parts[i], children: [],value:10 };
+        //let newNode = { name: '/' + parts[i], children: [],value:count };
 
         if(i === 0){
             root = newNode;
@@ -116,6 +126,36 @@ function refreshChart(title,lstData,importChart,charType){
     importChart.setOption(options);
 }
 
+function createSimpleMapToTbl(titles,lst){
+
+    var lstTitles = ``;
+    var lstTbls = ``;
+
+    for(var t in titles){
+        lstTitles += `<th scope="col">`+titles[t]+`</th>`;
+    }
+
+    let keys = Array.from(lst.keys());
+
+    for(var k in keys){
+        lstTbls += `<tr>
+        <td>`+keys[k]+`</td>
+        <td>`+lst.get(keys[k])+`</td>
+      </tr>`;
+    }
+
+    return `<table class="table table-striped table-dark">
+    <thead>
+      <tr>
+        `+lstTitles+`
+      </tr>
+    </thead>
+    <tbody>
+     `+lstTbls+`
+    </tbody>
+  </table>`;
+}
+
   
 
 
@@ -126,6 +166,9 @@ document.addEventListener("DOMContentLoaded", function() {
     //socketio variables
     var websitePathsUUID = "";
     var websitePathsMap = [];
+    var websitePathCount = new Map();
+    var websiteFileCount = new Map();
+
 
     //echart variables
     var uniqFilesWebMap = document.getElementById('uniqFiles');
@@ -133,6 +176,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var uniqPagesWebMap = document.getElementById('uniqPages');
     var chartUniqPagesWebMap = echarts.init(uniqPagesWebMap);
+
+    var uniqPagesWebTbl = document.getElementById('uniqPagesTbl');
+    var uniqFilesWebTbl = document.getElementById('uniqFilesTbl');
+    
 
     if (button) {
         button.addEventListener("click", () => component.increment());
@@ -145,8 +192,24 @@ document.addEventListener("DOMContentLoaded", function() {
     //startup load variabels
     socket.emit("websitePaths", "");
 
+    socket.on('websitePathCount', (msg) => {
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        websitePathCount = map;
+        uniqPagesWebTbl.innerHTML= createSimpleMapToTbl(["Path","Count"],websitePathCount);
+        //console.log("websitePathCount",map);
+    });
+
+    socket.on('websiteFileCount', (msg) => {
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        websiteFileCount = map;
+        console.log("websiteFileCount",map);
+        uniqFilesWebTbl.innerHTML= createSimpleMapToTbl(["File","Count"],websiteFileCount);
+    });
+
     socket.on('websitePaths', (msg) => {
-        console.log(msg);
+        //console.log(msg);
         websitePathsMap = msg;
         var tmp = JSON.parse(websitePathsMap);
         var lstDataUniqFiles = [];

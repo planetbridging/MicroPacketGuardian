@@ -36,4 +36,43 @@ function showMapDiagramTabs() {
   };
 }
 
-module.exports = { showMapDiagramTabs };
+function showMapTables() {
+  var menuTabs = [
+    objTmpEngine.tabMenuBtn("banner", true, "uniqpagesTbl", "Unique Pages Tbl"),
+    objTmpEngine.tabMenuBtn(
+      "banner",
+      false,
+      "uniqfilesTbl",
+      "Unique Files Tbl"
+    ),
+  ];
+
+  var menuTabsContents = [
+    objTmpEngine.tabMenuContent(
+      "banner",
+      "uniqpagesTbl",
+      true,
+      "<div id='uniqPagesTbl' class=''>pages tbl</div>"
+    ),
+    objTmpEngine.tabMenuContent(
+      "banner",
+      "uniqfilesTbl",
+      false,
+      "<div id='uniqFilesTbl' class='showDiagramTemp1'>files tbl</div>"
+    ),
+  ];
+
+  return {
+    tag: "div",
+    html: [
+      objTmpEngine.createTabs(
+        "d-flex justify-content-center",
+        "banner",
+        menuTabs,
+        menuTabsContents
+      ),
+    ],
+  };
+}
+
+module.exports = { showMapDiagramTabs, showMapTables };
