@@ -58,7 +58,7 @@ function showMapTables() {
       "banner",
       "uniqfilesTbl",
       false,
-      "<div id='uniqFilesTbl' class='showDiagramTemp1'>files tbl</div>"
+      "<div id='uniqFilesTbl' class=''>files tbl</div>"
     ),
   ];
 

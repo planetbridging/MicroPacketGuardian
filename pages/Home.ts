@@ -144,7 +144,7 @@ function createSimpleMapToTbl(titles,lst){
       </tr>`;
     }
 
-    return `<table class="table table-striped table-dark">
+    return `<table class="table table-sm table-hover table-striped table-dark table-bordered">
     <thead>
       <tr>
         `+lstTitles+`
