@@ -165,6 +165,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //socketio variables
     var websitePathsUUID = "";
+    var websitePathCountUUID
+    var websiteFileCountUUID = "";
     var websitePathsMap = [];
     var websitePathCount = new Map();
     var websiteFileCount = new Map();
@@ -318,6 +320,22 @@ document.addEventListener("DOMContentLoaded", function() {
         if(websitePathsUUID != msg){
             websitePathsUUID = msg;
             socket.emit("websitePaths", "");
+        }
+    });
+
+    socket.on('websitePathCountUUID', (msg) => {
+        //console.log(msg);
+        if(websitePathCountUUID != msg){
+            websitePathCountUUID = msg;
+            socket.emit("websitePathCount", "");
+        }
+    });
+
+    socket.on('websiteFileCountUUID', (msg) => {
+        //console.log(msg);
+        if(websiteFileCountUUID != msg){
+            websiteFileCountUUID = msg;
+            socket.emit("websiteFileCount", "");
         }
     });
 

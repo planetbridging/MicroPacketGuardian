@@ -67,13 +67,13 @@ class objMonitor {
   }
 
   updateUUIDForWebsiteMap() {
-    const md5StringwebsitePaths = mapToMd5uuid(this.websitePaths);
+    const md5StringwebsitePaths = this.mapToMd5uuid(this.websitePaths);
     this.websitePathsUUID = md5StringwebsitePaths;
 
-    const md5StringwebsitePathCount = mapToMd5uuid(this.websitePathCount);
+    const md5StringwebsitePathCount = this.mapToMd5uuid(this.websitePathCount);
     this.websitePathCountUUID = md5StringwebsitePathCount;
 
-    const md5StringwebsiteFileCount = mapToMd5uuid(this.websiteFileCount);
+    const md5StringwebsiteFileCount = this.mapToMd5uuid(this.websiteFileCount);
     this.websiteFileCountUUID = md5StringwebsiteFileCount;
   }
 
@@ -86,6 +86,20 @@ class objMonitor {
         socket.emit("websitePathCountUUID", this.websitePathCountUUID);
         socket.emit("websiteFileCountUUID", this.websiteFileCountUUID);
       }, 1000);
+
+      socket.on("websitePathCount", (message) => {
+        const mapStringPathCount = JSON.stringify(
+          Array.from(this.websitePathCount)
+        );
+        this.io.emit("websitePathCount", mapStringPathCount);
+      });
+
+      socket.on("websiteFileCount", (message) => {
+        const mapStringFileCount = JSON.stringify(
+          Array.from(this.websiteFileCount)
+        );
+        this.io.emit("websiteFileCount", mapStringFileCount);
+      });
 
       socket.on("websitePaths", (message) => {
         const mapString = JSON.stringify(Array.from(this.websitePaths));
