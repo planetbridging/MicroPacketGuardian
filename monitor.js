@@ -8,6 +8,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const JavaScriptObfuscator = require("javascript-obfuscator");
 const socketIO = require("socket.io");
 const crypto = require("crypto");
+const bodyParser = require("body-parser");
 
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
@@ -49,6 +50,13 @@ class objMonitor {
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
+
+    // parse application/x-www-form-urlencoded
+    this.appListener.use(bodyParser.urlencoded({ extended: false }));
+
+    // parse application/json
+    //app.use(bodyParser.json());
+
     this.appUI = express();
     this.uiServer = http.createServer(this.appUI);
     this.io = socketIO(this.uiServer);
@@ -180,7 +188,7 @@ class objMonitor {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
-
+          data += `<div class="d-flex flex-wrap">`;
           var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
           //console.log(pageMapTemp1);
           data += this.objTmpEngine.jToH(pageMapTemp1);
@@ -188,6 +196,8 @@ class objMonitor {
           var pageMapTemp1Tbl = pageMapTemplates.showMapTables();
           //console.log(pageMapTemp1);
           data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
+
+          data += `</div>`;
 
           data += this.objTmpEngine.bottomPage();
 
@@ -237,6 +247,9 @@ class objMonitor {
         target: this.targetServiceUrl,
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
+          console.log("GET variables:", req.query);
+          console.log("POST variables:", req.body);
+
           //const userId = req;
           //console.log(userId);
           var tmpHeaders = proxyReq.getHeaders();
