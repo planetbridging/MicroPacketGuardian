@@ -315,11 +315,8 @@ class objMonitor {
               countGet
             );
             this.websitePathGetCount.set(newSetGetCount[0], newSetGetCount[1]);
-            console.log(this.websitePathGetCount);
+            //console.log(this.websitePathGetCount);
           }
-
-          var countPost = this.countPostGetReq(req.body);
-          console.log("countPost" + mainPath, countPost);
 
           // Log the original URL
           //console.log("Original URL:", req.originalUrl);
@@ -389,6 +386,22 @@ class objMonitor {
             proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
             // stream the content
             proxyReq.write(bodyData);
+
+            var countPost = this.countPostGetReq(req.body);
+            //console.log("countGet" + mainPath, countGet);
+            if (countPost > 0) {
+              var newSetPostCount = this.appendCount(
+                this.websitePathPostCount,
+                mainPath,
+                countPost
+              );
+              //console.log(newSetPostCount);
+              this.websitePathPostCount.set(
+                newSetPostCount[0],
+                newSetPostCount[1]
+              );
+              //console.log(this.websitePathPostCount);
+            }
           }
         },
         /*onProxyRes: (proxyRes, req, res) => {

@@ -116,7 +116,12 @@ function refreshChart(title,lstData,importChart,charType){
         },
         series: {
         type: charType,
-        data: lstData
+        data: lstData,
+        label: {
+            color: '#000',
+            textBorderColor: '#fff',
+            textBorderWidth: 2,
+          }
         }
     };
 
@@ -165,11 +170,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
     //socketio variables
     var websitePathsUUID = "";
-    var websitePathCountUUID
+    var websitePathCountUUID = "";
     var websiteFileCountUUID = "";
+    var websiteGetCountUUID = "";
+    var websitePostCountUUID = "";
     var websitePathsMap = [];
     var websitePathCount = new Map();
     var websiteFileCount = new Map();
+    var websiteGetCount = new Map();
+    var websitePostCount = new Map();
+
+
+    
+
+    /*socket.on('websiteFileCountUUID', (msg) => {
+        //console.log(msg);
+        if(websiteFileCountUUID != msg){
+            websiteFileCountUUID = msg;
+            socket.emit("websiteFileCount", "");
+        }
+    });*/
 
 
     //echart variables
@@ -194,21 +214,7 @@ document.addEventListener("DOMContentLoaded", function() {
     //startup load variabels
     socket.emit("websitePaths", "");
 
-    socket.on('websitePathCount', (msg) => {
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        websitePathCount = map;
-        uniqPagesWebTbl.innerHTML= createSimpleMapToTbl(["Path","Count"],websitePathCount);
-        //console.log("websitePathCount",map);
-    });
-
-    socket.on('websiteFileCount', (msg) => {
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        websiteFileCount = map;
-        console.log("websiteFileCount",map);
-        uniqFilesWebTbl.innerHTML= createSimpleMapToTbl(["File","Count"],websiteFileCount);
-    });
+    
 
     socket.on('websitePaths', (msg) => {
         //console.log(msg);
@@ -313,7 +319,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
   
     });
-
+    
+    //uuid refreshing
 
     socket.on('websitePathsUUID', (msg) => {
         //console.log(msg);
@@ -339,9 +346,42 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    
+    socket.on('websiteGetCountUUID', (msg) => {
+        //console.log(msg);
+        if(websiteGetCountUUID != msg){
+            websiteGetCountUUID = msg;
+            socket.emit("websiteGetCount", "");
+        }
+    });
 
-    
-    
+
+    socket.on('websitePostCountUUID', (msg) => {
+        //console.log(msg);
+        if(websitePostCountUUID != msg){
+            websitePostCountUUID = msg;
+            socket.emit("websitePostCount", "");
+        }
+    });
+
+    //uuid processing
+
+    socket.on('websitePathCount', (msg) => {
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        websitePathCount = map;
+        uniqPagesWebTbl.innerHTML= createSimpleMapToTbl(["Path","Count"],websitePathCount);
+        //console.log("websitePathCount",map);
+    });
+
+    socket.on('websiteFileCount', (msg) => {
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        websiteFileCount = map;
+        //console.log("websiteFileCount",map);
+        uniqFilesWebTbl.innerHTML= createSimpleMapToTbl(["File","Count"],websiteFileCount);
+    });
+
 
 
 });
