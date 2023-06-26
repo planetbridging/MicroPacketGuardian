@@ -268,8 +268,8 @@ class objMonitor {
   countPostGetReq(req) {
     var count = 0;
     if (req != null && req != undefined) {
-      //var keys = Object.keys(req);
-      //console.log(keys.length);
+      var keys = Object.keys(req);
+      count = keys.length;
     }
     return count;
   }
@@ -284,13 +284,8 @@ class objMonitor {
         target: this.targetServiceUrl,
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
-          console.log("GET variables:", req.query);
-          console.log("POST variables:", req.body);
-          //var countGet = this.countPostGetReq(req.query);
-          //console.log("countGet", countGet);
-
-          //var countPost = this.countPostGetReq(req.body);
-          //console.log("countPost", countPost);
+          //console.log("GET variables:", req.query);
+          //console.log("POST variables:", req.body);
 
           /*if (this.websitePathCount.has(mainPath)) {
             var count = this.websitePathCount.get(mainPath);
@@ -310,6 +305,21 @@ class objMonitor {
           if (keyHeaders.includes("referer")) {
             mainPath = tmpHeaders["referer"];
           }
+
+          var countGet = this.countPostGetReq(req.query);
+          //console.log("countGet" + mainPath, countGet);
+          if (countGet > 0) {
+            var newSetGetCount = this.appendCount(
+              this.websitePathGetCount,
+              mainPath,
+              countGet
+            );
+            this.websitePathGetCount.set(newSetGetCount[0], newSetGetCount[1]);
+            console.log(this.websitePathGetCount);
+          }
+
+          var countPost = this.countPostGetReq(req.body);
+          console.log("countPost" + mainPath, countPost);
 
           // Log the original URL
           //console.log("Original URL:", req.originalUrl);
