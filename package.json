@@ -15,6 +15,7 @@
     "http-proxy-middleware": "^2.0.6",
     "javascript-obfuscator": "^4.0.2",
     "node-json2html": "^2.2.3",
-    "socket.io": "^4.7.0"
+    "socket.io": "^4.7.0",
+    "uuid": "^9.0.0"
   }
 }

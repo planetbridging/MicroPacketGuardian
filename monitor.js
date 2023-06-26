@@ -13,6 +13,7 @@ const bodyParser = require("body-parser");
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
 var pageMapTemplates = require("./pageMappingTemplates");
+var objPageMonitor = require("./objPageMonitor");
 
 function calculateMD5Hash(data) {
   const md5Hash = crypto.createHash("md5");
@@ -42,6 +43,8 @@ class objMonitor {
     ".css",
     ".js",
     ".html",
+    ".php",
+    ".json",
   ];
   targetServiceUrl;
   appListener;
@@ -50,10 +53,12 @@ class objMonitor {
   fileMap;
   io;
   uiServer;
+  oPageMonitor;
   constructor(isHttpsEnabled, targetServiceUrl) {
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
+    this.oPageMonitor = new objPageMonitor(this.acceptedFileTypes);
 
     // parse application/x-www-form-urlencoded
     this.appListener.use(bodyParser.urlencoded({ extended: false }));
@@ -311,11 +316,35 @@ class objMonitor {
           //console.log("Raw Headers:", tmpHeaders);
           var mainPath = "";
           var keyHeaders = Object.keys(tmpHeaders);
-          //console.log(tmpHeaders);
+
           if (keyHeaders.includes("referer")) {
             mainPath = tmpHeaders["referer"];
-            console.log("---", tmpHeaders["referer"]);
+            //console.log("---", tmpHeaders["referer"]);
           }
+
+          var mainPathClean = mainPath;
+          if (mainPathClean.includes("?")) {
+            mainPathClean = this.getMainPath(mainPathClean);
+          }
+          //console.log("Original URL:", req.originalUrl);
+          if (req.method == "POST" && req.body) {
+            var countPost = this.countPostGetReq(req.body);
+            this.oPageMonitor.postRequestCount(mainPath, countPost, req, res);
+          }
+
+          if (req.method == "GET") {
+            var getVariableCount = this.countPostGetReq(req.query);
+            this.oPageMonitor.getRequestCount(
+              mainPath,
+              getVariableCount,
+              req,
+              res
+            );
+            //console.log("getVariableCount:" + mainPathClean, getVariableCount);
+          }
+
+          console.log(this.oPageMonitor.uniqFileSummary);
+          console.log(this.oPageMonitor.uniqPageSummary);
 
           var countGet = this.countPostGetReq(req.query);
           //console.log("countGet" + mainPath, countGet);
