@@ -26,9 +26,13 @@ class objMonitor {
   websitePaths = new Map();
   websitePathCount = new Map();
   websiteFileCount = new Map();
+  websitePathGetCount = new Map();
+  websitePathPostCount = new Map();
   websitePathsUUID = "";
   websitePathCountUUID = "";
   websiteFileCountUUID = "";
+  websiteGetCountUUID = "";
+  websitePostCountUUID = "";
   acceptedFileTypes = [
     ".jpg",
     ".jpeg",
@@ -83,6 +87,16 @@ class objMonitor {
 
     const md5StringwebsiteFileCount = this.mapToMd5uuid(this.websiteFileCount);
     this.websiteFileCountUUID = md5StringwebsiteFileCount;
+
+    const md5StringwebsiteGetCount = this.mapToMd5uuid(
+      this.websitePathGetCount
+    );
+    this.websiteGetCountUUID = md5StringwebsiteGetCount;
+
+    const md5StringwebsitePostCount = this.mapToMd5uuid(
+      this.websitePathPostCount
+    );
+    this.websitePostCountUUID = md5StringwebsitePostCount;
   }
 
   async setupWebSocket() {
@@ -93,6 +107,8 @@ class objMonitor {
         socket.emit("websitePathsUUID", this.websitePathsUUID);
         socket.emit("websitePathCountUUID", this.websitePathCountUUID);
         socket.emit("websiteFileCountUUID", this.websiteFileCountUUID);
+        socket.emit("websiteGetCountUUID", this.websiteGetCountUUID);
+        socket.emit("websitePostCountUUID", this.websitePostCountUUID);
       }, 1000);
 
       socket.on("websitePathCount", (message) => {
@@ -237,6 +253,27 @@ class objMonitor {
       console.error("Error during startup:", error);
     }
   }
+
+  appendCount(lstMap, mainPath, countPass) {
+    var setPath = [mainPath, 1];
+    if (lstMap.has(mainPath)) {
+      var count = lstMap.get(mainPath);
+      count += countPass;
+
+      setPath = [mainPath, count];
+    }
+    return setPath;
+  }
+
+  countPostGetReq(req) {
+    var count = 0;
+    if (req != null && req != undefined) {
+      //var keys = Object.keys(req);
+      //console.log(keys.length);
+    }
+    return count;
+  }
+
   async setupListener() {
     try {
       var privateKey;
@@ -249,6 +286,19 @@ class objMonitor {
         onProxyReq: (proxyReq, req, res) => {
           console.log("GET variables:", req.query);
           console.log("POST variables:", req.body);
+          //var countGet = this.countPostGetReq(req.query);
+          //console.log("countGet", countGet);
+
+          //var countPost = this.countPostGetReq(req.body);
+          //console.log("countPost", countPost);
+
+          /*if (this.websitePathCount.has(mainPath)) {
+            var count = this.websitePathCount.get(mainPath);
+            count += 1;
+            this.websitePathCount.set(mainPath, count);
+          } else {
+            this.websitePathCount.set(mainPath, 1);
+          }*/
 
           //const userId = req;
           //console.log(userId);
@@ -321,11 +371,11 @@ class objMonitor {
           //console.log(this.websitePaths);
 
           this.updateUUIDForWebsiteMap();
-
-          /*for (const [key, value] of websitePaths) {
-              console.log(key, value);
-            }*/
         },
+        /*onProxyRes: (proxyRes, req, res) => {
+          // Send a response to the client here if needed
+          res.send("Proxy request completed");
+        },*/
       });
 
       this.appListener.use("/", proxyMiddleware);
