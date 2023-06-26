@@ -10,6 +10,10 @@
 
 
 
+
+
+
+
 class stateObj {
     ostate;
     oelement;
@@ -161,6 +165,44 @@ function createSimpleMapToTbl(titles,lst){
   </table>`;
 }
 
+class objShowStatTbls{
+    grabIdHtml;
+    grabIdDom;
+    uuid;
+    dataMap;
+    socket;
+    tblColumnHeaders;
+    uuidSocketChannel;
+    dataSocketChannel;
+    constructor(socket,tblColumnHeaders,grabIdHtml,uuidSocketChannel,dataSocketChannel) {
+        this.socket = socket;
+        this.tblColumnHeaders = tblColumnHeaders;
+        this.grabIdHtml = grabIdHtml;
+        this.grabIdDom = document.getElementById(this.grabIdHtml);
+        this.uuid = "";
+        this.dataMap = new Map();
+        this.uuidSocketChannel = uuidSocketChannel;
+        this.dataSocketChannel = dataSocketChannel;
+        this.startup();
+    }
+
+    startup(){
+        this.socket.on(this.uuidSocketChannel, (msg) => {
+            if(this.uuid != msg){
+                this.uuid = msg;
+                this.socket.emit(this.dataSocketChannel, "");
+            }
+        });
+
+        this.socket.on(this.dataSocketChannel, (msg) => {
+            const array = JSON.parse(msg);
+            const map = new Map(array);
+            this.dataMap = map;
+            this.grabIdDom.innerHTML= createSimpleMapToTbl(this.tblColumnHeaders,this.dataMap);
+        });
+    }
+}
+
   
 
 
@@ -198,9 +240,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var uniqPagesWebMap = document.getElementById('uniqPages');
     var chartUniqPagesWebMap = echarts.init(uniqPagesWebMap);
-
-    var uniqPagesWebTbl = document.getElementById('uniqPagesTbl');
-    var uniqFilesWebTbl = document.getElementById('uniqFilesTbl');
     
 
     if (button) {
@@ -321,6 +360,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     
     //uuid refreshing
+    //(socket,tblColumnHeaders,grabIdHtml,uuidSocketChannel,dataSocketChannel)
+    var objShowTblWebsitePathCount = new objShowStatTbls(socket,["Path","Count"],"uniqPagesTbl","websitePathCountUUID","websitePathCount");
+    var objShowTblWebsiteFileCount = new objShowStatTbls(socket,["File","Count"],"uniqFilesTbl","websiteFileCountUUID","websiteFileCount");
+    
 
     socket.on('websitePathsUUID', (msg) => {
         //console.log(msg);
@@ -329,22 +372,9 @@ document.addEventListener("DOMContentLoaded", function() {
             socket.emit("websitePaths", "");
         }
     });
+    
 
-    socket.on('websitePathCountUUID', (msg) => {
-        //console.log(msg);
-        if(websitePathCountUUID != msg){
-            websitePathCountUUID = msg;
-            socket.emit("websitePathCount", "");
-        }
-    });
-
-    socket.on('websiteFileCountUUID', (msg) => {
-        //console.log(msg);
-        if(websiteFileCountUUID != msg){
-            websiteFileCountUUID = msg;
-            socket.emit("websiteFileCount", "");
-        }
-    });
+    
 
     
     socket.on('websiteGetCountUUID', (msg) => {
@@ -362,27 +392,7 @@ document.addEventListener("DOMContentLoaded", function() {
             websitePostCountUUID = msg;
             socket.emit("websitePostCount", "");
         }
-    });
-
-    //uuid processing
-
-    socket.on('websitePathCount', (msg) => {
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        websitePathCount = map;
-        uniqPagesWebTbl.innerHTML= createSimpleMapToTbl(["Path","Count"],websitePathCount);
-        //console.log("websitePathCount",map);
-    });
-
-    socket.on('websiteFileCount', (msg) => {
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        websiteFileCount = map;
-        //console.log("websiteFileCount",map);
-        uniqFilesWebTbl.innerHTML= createSimpleMapToTbl(["File","Count"],websiteFileCount);
-    });
-
-
+    }); 
 
 });
 
