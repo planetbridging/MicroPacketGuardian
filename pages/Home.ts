@@ -259,6 +259,7 @@ document.addEventListener("DOMContentLoaded", function() {
         //console.log(msg);
         websitePathsMap = msg;
         var tmp = JSON.parse(websitePathsMap);
+        console.log("websitePaths",tmp);
         var lstDataUniqFiles = [];
         var lstDataUniqPages = [];
         var lstNewChildrenUniqFiles = [];

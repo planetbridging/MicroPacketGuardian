@@ -255,6 +255,7 @@ class objMonitor {
   }
 
   appendCount(lstMap, mainPath, countPass) {
+    mainPath = this.getMainPath(mainPath);
     var setPath = [mainPath, 1];
     if (lstMap.has(mainPath)) {
       var count = lstMap.get(mainPath);
@@ -272,6 +273,15 @@ class objMonitor {
       count = keys.length;
     }
     return count;
+  }
+
+  getMainPath(mainPath) {
+    const questionMarkIndex = mainPath.indexOf("?");
+    const beforeQuestionMark =
+      questionMarkIndex !== -1
+        ? mainPath.substring(0, questionMarkIndex)
+        : mainPath;
+    return beforeQuestionMark;
   }
 
   async setupListener() {
@@ -304,6 +314,7 @@ class objMonitor {
           //console.log(tmpHeaders);
           if (keyHeaders.includes("referer")) {
             mainPath = tmpHeaders["referer"];
+            console.log("---", tmpHeaders["referer"]);
           }
 
           var countGet = this.countPostGetReq(req.query);
@@ -315,8 +326,9 @@ class objMonitor {
               countGet
             );
             this.websitePathGetCount.set(newSetGetCount[0], newSetGetCount[1]);
-            //console.log(this.websitePathGetCount);
           }
+
+          //console.log(countGet);
 
           // Log the original URL
           //console.log("Original URL:", req.originalUrl);
@@ -330,13 +342,11 @@ class objMonitor {
           );
           if (acceptedFileChecking) {
             if (mainPath.includes("?")) {
-              const questionMarkIndex = mainPath.indexOf("?");
-              const beforeQuestionMark =
-                questionMarkIndex !== -1
-                  ? mainPath.substring(0, questionMarkIndex)
-                  : mainPath;
-              mainPath = beforeQuestionMark;
+              mainPath = this.getMainPath(mainPath);
             }
+
+            console.log("mainPath", mainPath);
+
             if (mainPath != "") {
               console.log(mainPath, req.originalUrl);
 
@@ -344,9 +354,9 @@ class objMonitor {
               //websiteFileCount = new Map();
 
               if (this.websitePathCount.has(mainPath)) {
-                var count = this.websitePathCount.get(mainPath);
-                count += 1;
-                this.websitePathCount.set(mainPath, count);
+                var countLoad = this.websitePathCount.get(mainPath);
+                countLoad += 1;
+                this.websitePathCount.set(mainPath, countLoad);
               } else {
                 this.websitePathCount.set(mainPath, 1);
               }
