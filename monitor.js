@@ -77,6 +77,22 @@ class objMonitor {
     this.io.on("connection", (socket) => {
       console.log("A user connected");
 
+      const timer = setInterval(() => {
+        socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      }, 1000);
+
+      socket.on("pageMonitor", (message) => {
+        const uniqPageSummary = JSON.stringify(
+          Array.from(this.oPageMonitor.uniqPageSummary)
+        );
+        this.io.emit("pageMonitorPage", uniqPageSummary);
+
+        const uniqFileSummary = JSON.stringify(
+          Array.from(this.oPageMonitor.uniqFileSummary)
+        );
+        this.io.emit("pageMonitorFile", uniqFileSummary);
+      });
+
       /*const timer = setInterval(() => {
         socket.emit("websitePathsUUID", this.websitePathsUUID);
         socket.emit("websitePathCountUUID", this.websitePathCountUUID);
@@ -178,26 +194,30 @@ class objMonitor {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
-          data += `<div class="card-group">`;
+          data += `<div class="d-flex justify-content-center"><div class="card-group p-5">`;
           data += `        
           
-          <div class="card border-success mb-3" style="max-width: 18rem;">
-  <div class="card-header bg-transparent border-success">Header</div>
+          <div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark">
+  <div class="card-header bg-transparent border-success">Page Summary</div>
   <div id="uniqFiles" class="card-body text-success">
     <h5 class="card-title">Success card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <p class="card-text">Loading data</p>
   </div>
   <div class="card-footer bg-transparent border-success">Footer</div>
 </div>
 
 
-<div class="card border-success mb-3" style="max-width: 18rem;">
-  <div class="card-header bg-transparent border-success">Header</div>
-  <div id="uniqPages" class="card-body text-success">
+<div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark" >
+  <div class="card-header bg-transparent border-success">File Summary</div>
+  <div id="uniqPages" class="card-body text-success" >
     <h5 class="card-title">Success card title</h5>
     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
   </div>
-  <div class="card-footer bg-transparent border-success">Footer</div>
+  <div class="card-footer bg-transparent border-success">
+  
+  ok
+  
+  </div>
 </div>`;
           //var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
           //console.log(pageMapTemp1);
@@ -207,7 +227,7 @@ class objMonitor {
           //console.log(pageMapTemp1);
           //data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
 
-          data += `</div>`;
+          data += `</div></div>`;
 
           data += this.objTmpEngine.bottomPage();
 

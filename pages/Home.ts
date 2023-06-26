@@ -187,6 +187,69 @@ function refreshChartCategory(title,lstData,importChart,charType){
     importChart.setOption(options);
 }
 
+function refreshChartPie(title,subText,loadType,lstData,importChart,legend){
+
+
+    var lstLoadData = [];
+
+    for(var tmpCount in lstData){
+        lstLoadData.push({
+            value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
+        });
+    }
+    var leg ={
+        orient: 'horizontal',
+        top: 'bottom',
+        textStyle: {
+          color: '#ccc'
+        }
+      };
+
+    
+
+    var option = {
+        title: {
+          text: title,
+          subtext: subText,
+          left: 'center',
+          textStyle: {
+            color: '#ccc'
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+        },
+        
+        series: [
+          {
+            name: 'Access From',
+            type: 'pie',
+            radius: '30%',
+            data: lstLoadData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+                color: '#ccc'
+              },
+
+            },
+          }
+        ],
+        
+      };
+
+      if(legend == true){
+        option["legend"] = leg;
+    }
+
+    //console.log(options);
+
+    // Set chart options and render the chart
+    importChart.setOption(option);
+}
+
 function createSimpleMapToTbl(titles,lst){
 
     var lstTitles = ``;
@@ -223,32 +286,50 @@ function createSimpleMapToTbl(titles,lst){
 document.addEventListener("DOMContentLoaded", function() {
     //socketio variables
     var pageMonitorUUID = "";
-
+    var pageMonitorPageType = "loadCount";
+    var pageMonitorFileType = "loadCount";
 
     
 
 
 
     //echart variables
-    var uniqFilesWebMap = document.getElementById('uniqFiles');
-    var chartUniqFilesWebMap = echarts.init(uniqFilesWebMap);
+    var chartUniqFilesWebMap = echarts.init(document.getElementById('uniqFiles'));
 
-    var uniqPagesWebMap = document.getElementById('uniqPages');
-    var chartUniqPagesWebMap = echarts.init(uniqPagesWebMap);
 
-    refreshChartCategory("Website map unique pages","",chartUniqFilesWebMap,'sunburst');
-    refreshChartCategory("Website map unique pages","lstDataUniqPages",chartUniqPagesWebMap,'sunburst');
+    var chartUniqPagesWebMap = echarts.init(document.getElementById('uniqPages'));
+
+    
+    
     
 
     console.log("welcome to front end DOM of micro packet guardian");
 
     const socket = io();
 
+    socket.on('pageMonitorUUID', (msg) => {
+        //console.log(msg);
+        if(pageMonitorUUID != msg){
+            pageMonitorUUID = msg;
+            socket.emit("pageMonitor", "");
+        }
+    });
   
+    socket.on('pageMonitorPage', (msg) => {
+        console.log(msg);
+        var tmp = JSON.parse(msg);
+        //refreshChartPie(title,subText,loadType,lstData,importChart)
+        refreshChartPie("Page Summary","Load,Get,Post",pageMonitorPageType,tmp,chartUniqPagesWebMap,true);
+
+    });
+
+    socket.on('pageMonitorFile', (msg) => {
+        console.log(msg);
+        var tmp = JSON.parse(msg);
+        refreshChartPie("File Summary","Load,Get,Post",pageMonitorFileType,tmp,chartUniqFilesWebMap,false);
+    });
 
 
 });
 
-
-function createMultipleChildren(){}
 
