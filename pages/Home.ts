@@ -250,7 +250,7 @@ function refreshChartPie(title,subText,loadType,lstData,importChart,legend){
     importChart.setOption(option);
 }
 
-function createSimpleMapToTbl(titles,lst){
+function createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys){
 
     var lstTitles = ``;
     var lstTbls = ``;
@@ -262,10 +262,25 @@ function createSimpleMapToTbl(titles,lst){
     let keys = Array.from(lst.keys());
 
     for(var k in keys){
-        lstTbls += `<tr>
-        <td>`+keys[k]+`</td>
-        <td>`+lst.get(keys[k])+`</td>
-      </tr>`;
+
+        var tmpHtml = `<tr>`;
+
+        if(subKeysEnabled == true){
+            tmpHtml += `<td>`+keys[k]+`</td>`;
+            for(var tmpSub in lstSubKeys){
+                tmpHtml += "<td>" + lst.get(keys[k])[lstSubKeys[tmpSub]] + "</td>";
+            }
+
+            tmpHtml += `</tr>`;
+        }else{
+            tmpHtml = `<tr>
+            <td>`+keys[k]+`</td>
+            <td>`+lst.get(keys[k])+`</td>
+          </tr>`;
+        }
+
+        lstTbls += tmpHtml;
+      //console.log(lst.get(keys[k]));
     }
 
     return `<table class="table table-sm table-hover table-striped table-dark table-bordered">
@@ -320,15 +335,21 @@ document.addEventListener("DOMContentLoaded", function() {
         var tmp = JSON.parse(msg);
         //refreshChartPie(title,subText,loadType,lstData,importChart)
         refreshChartPie("Page Summary","Load,Get,Post",pageMonitorPageType,tmp,chartUniqPagesWebMap,true);
-
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
+        document.getElementById('pageTbl').innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount"],map,true,["loadCount","getCount","postCount"]);
     });
 
     socket.on('pageMonitorFile', (msg) => {
         console.log(msg);
         var tmp = JSON.parse(msg);
         refreshChartPie("File Summary","Load,Get,Post",pageMonitorFileType,tmp,chartUniqFilesWebMap,false);
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
+        document.getElementById('fileTbl').innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount"],map,true,["loadCount","getCount","postCount"]);
     });
-
 
 });
 

@@ -198,25 +198,79 @@ class objMonitor {
           data += `        
           
           <div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark">
-  <div class="card-header bg-transparent border-success">Page Summary</div>
+
+  <div class="card-header bg-transparent border-success">
+  
+  
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalFile">
+  Data
+</button>
+
+
+<div class="modal fade" id="exampleModalFile" tabindex="-1" aria-labelledby="exampleModalLabelFile" aria-hidden="true">
+  <div class="modal-dialog modal-90w">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabelFile">Page Summary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="fileTbl" class="modal-body">
+        This is the body of the modal.
+      </div>
+    </div>
+  </div>
+</div>
+  
+  
+  
+  
+  </div>
+
+
+
+
+
+
   <div id="uniqFiles" class="card-body text-success">
     <h5 class="card-title">Success card title</h5>
     <p class="card-text">Loading data</p>
   </div>
-  <div class="card-footer bg-transparent border-success">Footer</div>
 </div>
 
 
 <div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark" >
-  <div class="card-header bg-transparent border-success">File Summary</div>
+
+
+
+  <div class="card-header bg-transparent border-success">
+  
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Data
+</button>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-90w">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Page Summary</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="pageTbl" class="modal-body">
+        This is the body of the modal.
+      </div>
+    </div>
+  </div>
+</div>
+  
+  </div>
+
+
+
+
   <div id="uniqPages" class="card-body text-success" >
     <h5 class="card-title">Success card title</h5>
     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div>
-  <div class="card-footer bg-transparent border-success">
-  
-  ok
-  
   </div>
 </div>`;
           //var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
@@ -339,8 +393,8 @@ class objMonitor {
             //console.log("getVariableCount:" + mainPathClean, getVariableCount);
           }
 
-          console.log(this.oPageMonitor.uniqFileSummary);
-          console.log(this.oPageMonitor.uniqPageSummary);
+          //console.log(this.oPageMonitor.uniqFileSummary);
+          //console.log(this.oPageMonitor.uniqPageSummary);
 
           if (req.method == "POST" && req.body) {
             let bodyData = JSON.stringify(req.body);

@@ -15,8 +15,9 @@ class objTemplateEngine {
             <title>~MicroPacketGuardian</title>
             
         <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
-
-        <script src="./assets/js/bootstrap.bundle.min.js"></script>
+        
+  
+        <script src="./"></script>
             <style type="text/css">
               body {
                 padding-top: 60px;
@@ -51,6 +52,11 @@ class objTemplateEngine {
           height: 400px;
           margin: 0 auto;
         }
+
+        .modal-90w {
+          max-width: 90% !important;
+        }
+
         </style>
         <script defer src="/socket.io/socket.io.js"></script>
         <script src="/echarts.min.js
@@ -78,7 +84,8 @@ class objTemplateEngine {
     </script>
 
 
- 
+
+  <script src="./assets/js/bootstrap.bundle.min.js"></script>
     
     </body>
    
