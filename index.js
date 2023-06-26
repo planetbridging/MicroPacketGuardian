@@ -11,9 +11,10 @@ var objMonitor = require("./monitor");
   console.log("Welcome to Micro Packet Guardian");
   const isHttpsEnabled = process.env.PROTOCOL === "https";
   console.log("HTTPS Enabled:", isHttpsEnabled);
+  console.log(port, process.env.PORT);
   console.log("Server is running on port:", port);
 
-  var mainobjMonitor = new objMonitor(isHttpsEnabled, targetServiceUrl);
+  var mainobjMonitor = new objMonitor(isHttpsEnabled, targetServiceUrl, port);
   // Add your startup code or any other logic here
 
   //startup(isHttpsEnabled);

@@ -44,7 +44,9 @@ class objMonitor {
   io;
   uiServer;
   oPageMonitor;
-  constructor(isHttpsEnabled, targetServiceUrl) {
+  runMainOnPort;
+  constructor(isHttpsEnabled, targetServiceUrl, runMainOnPort) {
+    this.runMainOnPort = runMainOnPort;
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
@@ -419,8 +421,8 @@ class objMonitor {
         this.hServer = http.createServer(this.appListener);
       }
 
-      this.hServer.listen(3000, () => {
-        console.log("Proxy server listening on port 3000");
+      this.hServer.listen(this.runMainOnPort, () => {
+        console.log("Proxy server listening on port", this.runMainOnPort);
       });
     } catch (error) {
       console.error("Error during startup:", error);
