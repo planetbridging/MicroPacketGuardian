@@ -24,6 +24,16 @@ function calculateMD5Hash(data) {
 class objMonitor {
   isHttpsEnabled = "";
   hServer;
+  websitePaths = new Map();
+  websitePathCount = new Map();
+  websiteFileCount = new Map();
+  websitePathGetCount = new Map();
+  websitePathPostCount = new Map();
+  websitePathsUUID = "";
+  websitePathCountUUID = "";
+  websiteFileCountUUID = "";
+  websiteGetCountUUID = "";
+  websitePostCountUUID = "";
   acceptedFileTypes = [
     ".jpg",
     ".jpeg",
@@ -61,7 +71,7 @@ class objMonitor {
     this.io = socketIO(this.uiServer);
     this.objTmpEngine = new objTemplateEngine();
     this.fileMap = loadFilesIntoMap("./public");
-    //this.listenerPaths();
+    this.listenerPaths();
     this.setupListener();
 
     this.setupUI();
@@ -73,11 +83,32 @@ class objMonitor {
     return md5String;
   }
 
+  updateUUIDForWebsiteMap() {
+    const md5StringwebsitePaths = this.mapToMd5uuid(this.websitePaths);
+    this.websitePathsUUID = md5StringwebsitePaths;
+
+    const md5StringwebsitePathCount = this.mapToMd5uuid(this.websitePathCount);
+    this.websitePathCountUUID = md5StringwebsitePathCount;
+
+    const md5StringwebsiteFileCount = this.mapToMd5uuid(this.websiteFileCount);
+    this.websiteFileCountUUID = md5StringwebsiteFileCount;
+
+    const md5StringwebsiteGetCount = this.mapToMd5uuid(
+      this.websitePathGetCount
+    );
+    this.websiteGetCountUUID = md5StringwebsiteGetCount;
+
+    const md5StringwebsitePostCount = this.mapToMd5uuid(
+      this.websitePathPostCount
+    );
+    this.websitePostCountUUID = md5StringwebsitePostCount;
+  }
+
   async setupWebSocket() {
     this.io.on("connection", (socket) => {
       console.log("A user connected");
 
-      /*const timer = setInterval(() => {
+      const timer = setInterval(() => {
         socket.emit("websitePathsUUID", this.websitePathsUUID);
         socket.emit("websitePathCountUUID", this.websitePathCountUUID);
         socket.emit("websiteFileCountUUID", this.websiteFileCountUUID);
@@ -110,7 +141,7 @@ class objMonitor {
         this.io.emit("websitePathCount", mapStringPathCount);
         this.io.emit("websiteFileCount", mapStringFileCount);
         this.io.emit("websitePaths", mapString);
-      });*/
+      });
 
       socket.on("disconnect", () => {
         console.log("A user disconnected");
@@ -173,39 +204,19 @@ class objMonitor {
         var data = this.objTmpEngine.topPage();
 
         data += this.objTmpEngine.mainMenu();
-        //console.log(filePath);
-        if (filePath == "/") {
+
+        if (filePath == "/template1") {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
-          data += `<div class="card-group">`;
-          data += `        
-          
-          <div class="card border-success mb-3" style="max-width: 18rem;">
-  <div class="card-header bg-transparent border-success">Header</div>
-  <div id="uniqFiles" class="card-body text-success">
-    <h5 class="card-title">Success card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div>
-  <div class="card-footer bg-transparent border-success">Footer</div>
-</div>
-
-
-<div class="card border-success mb-3" style="max-width: 18rem;">
-  <div class="card-header bg-transparent border-success">Header</div>
-  <div id="uniqPages" class="card-body text-success">
-    <h5 class="card-title">Success card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-  </div>
-  <div class="card-footer bg-transparent border-success">Footer</div>
-</div>`;
-          //var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
+          data += `<div class="d-flex flex-wrap">`;
+          var pageMapTemp1 = pageMapTemplates.showMapDiagramTabs();
           //console.log(pageMapTemp1);
-          //data += this.objTmpEngine.jToH(pageMapTemp1);
+          data += this.objTmpEngine.jToH(pageMapTemp1);
 
-          //var pageMapTemp1Tbl = pageMapTemplates.showMapTables();
+          var pageMapTemp1Tbl = pageMapTemplates.showMapTables();
           //console.log(pageMapTemp1);
-          //data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
+          data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
 
           data += `</div>`;
 
@@ -233,7 +244,7 @@ class objMonitor {
               return;
             }
 
-            //console.log(this.fileMap.has(str), "ok:" + str);
+            console.log(this.fileMap.has(str), "ok:" + str);
           } catch {}
 
           res.status(404).send("File not found");
@@ -288,6 +299,19 @@ class objMonitor {
         target: this.targetServiceUrl,
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
+          //console.log("GET variables:", req.query);
+          //console.log("POST variables:", req.body);
+
+          /*if (this.websitePathCount.has(mainPath)) {
+            var count = this.websitePathCount.get(mainPath);
+            count += 1;
+            this.websitePathCount.set(mainPath, count);
+          } else {
+            this.websitePathCount.set(mainPath, 1);
+          }*/
+
+          //const userId = req;
+          //console.log(userId);
           var tmpHeaders = proxyReq.getHeaders();
           //console.log("Raw Headers:", tmpHeaders);
           var mainPath = "";
@@ -322,6 +346,78 @@ class objMonitor {
           console.log(this.oPageMonitor.uniqFileSummary);
           console.log(this.oPageMonitor.uniqPageSummary);
 
+          var countGet = this.countPostGetReq(req.query);
+          //console.log("countGet" + mainPath, countGet);
+          if (countGet > 0) {
+            var newSetGetCount = this.appendCount(
+              this.websitePathGetCount,
+              mainPath,
+              countGet
+            );
+            this.websitePathGetCount.set(newSetGetCount[0], newSetGetCount[1]);
+          }
+
+          //console.log(countGet);
+
+          // Log the original URL
+          //console.log("Original URL:", req.originalUrl);
+
+          // Log the target URL
+          //const targetUrl = targetServiceUrl + req.originalUrl;
+          //console.log(req.originalUrl, mainPath);
+          //console.log(req.originalUrl);
+          var acceptedFileChecking = this.checkPathForAcceptedFileType(
+            req.originalUrl
+          );
+          if (acceptedFileChecking) {
+            if (mainPath.includes("?")) {
+              mainPath = this.getMainPath(mainPath);
+            }
+
+            console.log("mainPath", mainPath);
+
+            if (mainPath != "") {
+              console.log(mainPath, req.originalUrl);
+
+              //websitePathCount = new Map();
+              //websiteFileCount = new Map();
+
+              if (this.websitePathCount.has(mainPath)) {
+                var countLoad = this.websitePathCount.get(mainPath);
+                countLoad += 1;
+                this.websitePathCount.set(mainPath, countLoad);
+              } else {
+                this.websitePathCount.set(mainPath, 1);
+              }
+
+              if (this.websiteFileCount.has(mainPath + req.originalUrl)) {
+                var count = this.websiteFileCount.get(
+                  mainPath + req.originalUrl
+                );
+                count += 1;
+                this.websiteFileCount.set(mainPath + req.originalUrl, count);
+              } else {
+                this.websiteFileCount.set(mainPath + req.originalUrl, 1);
+              }
+
+              if (this.websitePaths.has(mainPath)) {
+                var tmpPathReq = this.websitePaths.get(mainPath);
+                if (!tmpPathReq.includes(req.originalUrl)) {
+                  const combinedArray = [
+                    ...new Set([...tmpPathReq, ...[req.originalUrl]]),
+                  ];
+                  this.websitePaths.set(mainPath, combinedArray);
+                }
+              } else {
+                this.websitePaths.set(mainPath, [req.originalUrl]);
+              }
+            }
+          }
+
+          //console.log(this.websitePaths);
+
+          this.updateUUIDForWebsiteMap();
+
           if (req.method == "POST" && req.body) {
             let bodyData = JSON.stringify(req.body);
             // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
@@ -329,8 +425,28 @@ class objMonitor {
             proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
             // stream the content
             proxyReq.write(bodyData);
+
+            var countPost = this.countPostGetReq(req.body);
+            //console.log("countGet" + mainPath, countGet);
+            if (countPost > 0) {
+              var newSetPostCount = this.appendCount(
+                this.websitePathPostCount,
+                mainPath,
+                countPost
+              );
+              //console.log(newSetPostCount);
+              this.websitePathPostCount.set(
+                newSetPostCount[0],
+                newSetPostCount[1]
+              );
+              //console.log(this.websitePathPostCount);
+            }
           }
         },
+        /*onProxyRes: (proxyRes, req, res) => {
+          // Send a response to the client here if needed
+          res.send("Proxy request completed");
+        },*/
       });
 
       this.appListener.use("/", proxyMiddleware);
@@ -351,6 +467,26 @@ class objMonitor {
     } catch (error) {
       console.error("Error during startup:", error);
     }
+  }
+  async listenerPaths() {
+    this.appListener.get("/paths", (req, res) => {
+      var lst = [];
+      for (const [key, value] of this.websitePaths) {
+        lst.push([key, value]);
+      }
+
+      res.send(lst);
+    });
+  }
+
+  checkPathForAcceptedFileType(filePath) {
+    if (filePath.includes(".")) {
+      const fileType = path.extname(filePath);
+      if (this.acceptedFileTypes.includes(fileType)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
