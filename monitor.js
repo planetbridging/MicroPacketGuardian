@@ -198,7 +198,8 @@ class objMonitor {
 
           //data += this.objTmpEngine.jToH(templateBanner());
           data += `<div class="d-flex justify-content-center"><div class="card-group p-5">`;
-          data += `        
+          data +=
+            `        
           
           <div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark">
 
@@ -212,6 +213,12 @@ class objMonitor {
 <button id="btnLoadIdFileSummary" type="button" class="btn btn-secondary btn-sm">Load</button>
 <button id="btnGetIdFileSummary" type="button" class="btn btn-secondary btn-sm">Get</button>
 <button id="btnPostIdFileSummary" type="button" class="btn btn-secondary btn-sm">Post</button>
+
+` +
+            this.objTmpEngine.staticHtmlPlaceholderTestingForStatusCodes(
+              "cFileSum"
+            ) +
+            `
 
 <div class="modal fade" id="exampleModalFile" tabindex="-1" aria-labelledby="exampleModalLabelFile" aria-hidden="true">
   <div class="modal-dialog modal-90w">
@@ -262,9 +269,15 @@ class objMonitor {
     <button id="btnPostIdPageSummary" type="button" class="btn btn-secondary btn-sm">Post</button>
   </div>
 
-  <select class="custom-select" id="inputGroupSelectPageSummary">
-    <option selected>Code</option>
-  </select>
+  ` +
+            this.objTmpEngine.staticHtmlPlaceholderTestingForStatusCodes(
+              "cPageSum"
+            ) +
+            `
+
+
+
+
 </div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

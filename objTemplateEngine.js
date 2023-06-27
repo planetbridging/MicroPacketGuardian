@@ -575,6 +575,106 @@ class objTemplateEngine {
     ];
     return data;
   }
+
+  staticHtmlPlaceholderTestingForStatusCodes(uniqCheck) {
+    var html =
+      `<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Status codes
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="100" id="check100">
+            <label class="form-check-label" for="check100">
+                100 Continue
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="200" id="check200" checked>
+            <label class="form-check-label" for="check200">
+                200 OK
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="201" id="check201">
+            <label class="form-check-label" for="check201">
+                201 Created
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="202" id="check202">
+            <label class="form-check-label" for="check202">
+                202 Accepted
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="204" id="check204">
+            <label class="form-check-label" for="check204">
+                204 No Content
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="304" id="check304" checked>
+            <label class="form-check-label" for="check304">
+                304 Not Modified
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="400" id="check400">
+            <label class="form-check-label" for="check400">
+                400 Bad Request
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="401" id="check401">
+            <label class="form-check-label" for="check401">
+                401 Unauthorized
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="403" id="check403">
+            <label class="form-check-label" for="check403">
+                403 Forbidden
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="404" id="check404">
+            <label class="form-check-label" for="check404">
+                404 Not Found
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input` +
+      uniqCheck +
+      `" type="checkbox" value="500" id="check500">
+            <label class="form-check-label" for="check500">
+                500 Server Error
+            </label>
+        </div>
+    </div>
+  </div>`;
+    return html;
+  }
 }
 
 module.exports = objTemplateEngine;

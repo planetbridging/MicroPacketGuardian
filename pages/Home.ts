@@ -313,7 +313,9 @@ class objPieListenerPageStats{
     showCode;
     socketData;
     graphTitle;
-    constructor(elementId,socket,socketListenChannel,showLegends,showMoreVariables,tblData,btnLoadId,btnGetId,btnPostId,graphTitle) {
+    uniqCheckBoxName;
+    viewingStatusCodes;
+    constructor(elementId,socket,socketListenChannel,showLegends,showMoreVariables,tblData,btnLoadId,btnGetId,btnPostId,graphTitle,uniqCheckBoxName) {
         this.eChartListener = echarts.init(document.getElementById(elementId));
         this.socket = socket;
         this.socketListenChannel = socketListenChannel;
@@ -322,11 +324,14 @@ class objPieListenerPageStats{
         this.showMoreVariables = showMoreVariables;
         this.tblData = tblData;
         this.showCode = "all";
+        this.viewingStatusCodes = ["200","304"];
         this.graphTitle = graphTitle;
+        this.uniqCheckBoxName = uniqCheckBoxName;
         this.socketListner();
         this.addBtnListenerChangeGraph(btnLoadId,'loadCount');
         this.addBtnListenerChangeGraph(btnGetId,'getCount');
         this.addBtnListenerChangeGraph(btnPostId,'postCount');
+        this.loadCheckedItemListener();
 
     }
 
@@ -356,6 +361,25 @@ class objPieListenerPageStats{
     refreshPie(){
         refreshChartPie(this.graphTitle,this.selectedPageType,this.selectedPageType,this.socketData,this.eChartListener,this.showLegends,this.showCode);
     }
+
+    loadCheckedItemListener(){
+        // Get all checkboxes in the dropdown
+        let checkboxes = document.querySelectorAll('.form-check-input'+this.uniqCheckBoxName);
+
+        // Add an event listener to each checkbox
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => { // Use an arrow function here
+                // Log the checkbox value and checked status
+                console.log(`Checkbox ${checkbox.value} is ${checkbox.checked ? 'checked' : 'unchecked'}`);
+                if(checkbox.checked && !this.viewingStatusCodes.includes(checkbox.value)){
+                    this.viewingStatusCodes.push(checkbox.value);
+                }else if(!checkbox.checked && this.viewingStatusCodes.includes(checkbox.value)){
+                    this.viewingStatusCodes = this.viewingStatusCodes.filter(item => item !== checkbox.value);
+                }
+                    console.log(this.viewingStatusCodes);
+                });
+        });
+    }
 }
 
 
@@ -365,8 +389,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const socket = io();
 
-    var oPageSummary = new objPieListenerPageStats('uniqPages',socket,'pageMonitorPage',true,true,'pageTbl',"btnLoadIdPageSummary","btnGetIdPageSummary","btnPostIdPageSummary","Page Summary");
-    var oPageFile = new objPieListenerPageStats('uniqFiles',socket,'pageMonitorFile',false,true,'fileTbl',"btnLoadIdFileSummary","btnGetIdFileSummary","btnPostIdFileSummary","File Summary");
+    var oPageSummary = new objPieListenerPageStats('uniqPages',socket,'pageMonitorPage',true,true,'pageTbl',"btnLoadIdPageSummary","btnGetIdPageSummary","btnPostIdPageSummary","Page Summary","cPageSum");
+    var oPageFile = new objPieListenerPageStats('uniqFiles',socket,'pageMonitorFile',false,true,'fileTbl',"btnLoadIdFileSummary","btnGetIdFileSummary","btnPostIdFileSummary","File Summary","cFileSum");
 
     
     
