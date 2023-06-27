@@ -49,7 +49,7 @@ class objPageMonitor {
     return [foundType, tmpObjGrab, tmpUrl, found];
   }
 
-  getRequestCount(path, getCount, req, res) {
+  getRequestCount(path, getCount, req, res, statusCode) {
     /*console.log("-----------------------------------------");
     console.log(path);
     console.log("------");
@@ -66,6 +66,7 @@ class objPageMonitor {
     var tmpUrl = processReqTmp[2];
     var found = processReqTmp[3];
 
+    tmpObjGrab["statusCode"] = statusCode;
     //tmpObjGrab.loadCount += 1;
 
     if (getCount > 0 && found) {
@@ -87,7 +88,7 @@ class objPageMonitor {
     this.uuid = uuidv4();
   }
 
-  postRequestCount(path, postCount, req, res) {
+  postRequestCount(path, postCount, req, res, statusCode) {
     /*console.log("-----------------------------------------");
     console.log(path);
     console.log("------");
@@ -104,6 +105,7 @@ class objPageMonitor {
     var tmpUrl = processReqTmp[2];
     var found = processReqTmp[3];
 
+    tmpObjGrab["statusCode"] = statusCode;
     //tmpObjGrab.loadCount += 1;
 
     if (postCount > 0 && found) {

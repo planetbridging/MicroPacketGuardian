@@ -53,7 +53,8 @@ class objMonitor {
     this.oPageMonitor = new objPageMonitor(this.acceptedFileTypes);
 
     // parse application/x-www-form-urlencoded
-    this.appListener.use(bodyParser.urlencoded({ extended: false }));
+
+    this.appListener.use(bodyParser.urlencoded({ extended: true }));
 
     // parse application/json
     //app.use(bodyParser.json());
@@ -208,6 +209,9 @@ class objMonitor {
   Data
 </button>
 
+<button id="btnLoadIdFileSummary" type="button" class="btn btn-secondary btn-sm">Load</button>
+<button id="btnGetIdFileSummary" type="button" class="btn btn-secondary btn-sm">Get</button>
+<button id="btnPostIdFileSummary" type="button" class="btn btn-secondary btn-sm">Post</button>
 
 <div class="modal fade" id="exampleModalFile" tabindex="-1" aria-labelledby="exampleModalLabelFile" aria-hidden="true">
   <div class="modal-dialog modal-90w">
@@ -246,10 +250,22 @@ class objMonitor {
 
   <div class="card-header bg-transparent border-success">
   
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Data
-</button>
+  <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 
+    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Data
+  </button>
+
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <button id="btnLoadIdPageSummary" type="button" class="btn btn-secondary btn-sm">Load</button>
+    <button id="btnGetIdPageSummary" type="button" class="btn btn-secondary btn-sm">Get</button>
+    <button id="btnPostIdPageSummary" type="button" class="btn btn-secondary btn-sm">Post</button>
+  </div>
+
+  <select class="custom-select" id="inputGroupSelectPageSummary">
+    <option selected>Code</option>
+  </select>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-90w">
@@ -379,21 +395,15 @@ class objMonitor {
             mainPathClean = this.getMainPath(mainPathClean);
           }
           //console.log("Original URL:", req.originalUrl);
-          if (req.method == "POST" && req.body) {
-            var countPost = this.countPostGetReq(req.body);
-            this.oPageMonitor.postRequestCount(mainPath, countPost, req, res);
-          }
 
-          if (req.method == "GET") {
-            var getVariableCount = this.countPostGetReq(req.query);
-            this.oPageMonitor.getRequestCount(
-              mainPath,
-              getVariableCount,
-              req,
-              res
-            );
-            //console.log("getVariableCount:" + mainPathClean, getVariableCount);
-          }
+          req.myData = {
+            mainPath: mainPath,
+            reqMethod: req.method,
+            reqQuery: req.query,
+            tmpReq: req,
+            tmpRes: res,
+            reqBody: req.body,
+          };
 
           //console.log(this.oPageMonitor.uniqFileSummary);
           //console.log(this.oPageMonitor.uniqPageSummary);
@@ -405,6 +415,30 @@ class objMonitor {
             proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
             // stream the content
             proxyReq.write(bodyData);
+          }
+        },
+        onProxyRes: (proxyRes, req, res) => {
+          if (req.myData.reqMethod == "POST" && req.myData.reqBody) {
+            var countPost = this.countPostGetReq(req.myData.reqBody);
+            this.oPageMonitor.postRequestCount(
+              req.myData.mainPath,
+              countPost,
+              req.myData.tmpReq,
+              req.myData.tmpRes,
+              proxyRes.statusCode
+            );
+          }
+
+          if (req.myData.reqMethod == "GET") {
+            var getVariableCount = this.countPostGetReq(req.myData.reqQuery);
+            this.oPageMonitor.getRequestCount(
+              req.myData.mainPath,
+              getVariableCount,
+              req.myData.tmpReq,
+              req.myData.tmpRes,
+              proxyRes.statusCode
+            );
+            //console.log("getVariableCount:" + mainPathClean, getVariableCount);
           }
         },
       });

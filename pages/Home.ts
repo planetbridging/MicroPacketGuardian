@@ -187,15 +187,22 @@ function refreshChartCategory(title,lstData,importChart,charType){
     importChart.setOption(options);
 }
 
-function refreshChartPie(title,subText,loadType,lstData,importChart,legend){
-
+function refreshChartPie(title,subText,loadType,lstData,importChart,legend,showCode){
 
     var lstLoadData = [];
 
     for(var tmpCount in lstData){
-        lstLoadData.push({
-            value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
-        });
+        //console.log(lstData[tmpCount][1]);
+        if(showCode == "all"){
+            lstLoadData.push({
+                value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
+            });
+        }else if(lstData[tmpCount][1][showCode] == showCode){
+            lstLoadData.push({
+                value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
+            });
+        }
+        
     }
     var leg ={
         orient: 'horizontal',
@@ -295,32 +302,78 @@ function createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys){
   </table>`;
 }
 
-  
+class objPieListenerPageStats{
+    eChartListener;
+    socket;
+    socketListenChannel;
+    selectedPageType;
+    showLegends;
+    showMoreVariables;
+    tblData;
+    showCode;
+    socketData;
+    graphTitle;
+    constructor(elementId,socket,socketListenChannel,showLegends,showMoreVariables,tblData,btnLoadId,btnGetId,btnPostId,graphTitle) {
+        this.eChartListener = echarts.init(document.getElementById(elementId));
+        this.socket = socket;
+        this.socketListenChannel = socketListenChannel;
+        this.selectedPageType = "loadCount";
+        this.showLegends = showLegends;
+        this.showMoreVariables = showMoreVariables;
+        this.tblData = tblData;
+        this.showCode = "all";
+        this.graphTitle = graphTitle;
+        this.socketListner();
+        this.addBtnListenerChangeGraph(btnLoadId,'loadCount');
+        this.addBtnListenerChangeGraph(btnGetId,'getCount');
+        this.addBtnListenerChangeGraph(btnPostId,'postCount');
+
+    }
+
+    addBtnListenerChangeGraph(id,inputChange){
+        document.getElementById(id).addEventListener('click', () => {
+            this.selectedPageType = inputChange;
+            this.refreshPie();
+        });
+    }
+
+    socketListner(){
+        //var self = this;
+
+        this.socket.on(this.socketListenChannel, (msg) => {
+            //console.log(msg);
+            var tmp = JSON.parse(msg);
+            this.socketData = tmp;
+            //refreshChartPie(title,subText,loadType,lstData,importChart)
+            this.refreshPie();
+            const array = JSON.parse(msg);
+            const map = new Map(array);
+            //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
+            document.getElementById(this.tblData).innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount","statusCode"],map,this.showMoreVariables,["loadCount","getCount","postCount","statusCode"]);
+        });
+    }
+
+    refreshPie(){
+        refreshChartPie(this.graphTitle,this.selectedPageType,this.selectedPageType,this.socketData,this.eChartListener,this.showLegends,this.showCode);
+    }
+}
 
 
 document.addEventListener("DOMContentLoaded", function() {
     //socketio variables
     var pageMonitorUUID = "";
-    var pageMonitorPageType = "loadCount";
-    var pageMonitorFileType = "loadCount";
 
-    
+    const socket = io();
 
+    var oPageSummary = new objPieListenerPageStats('uniqPages',socket,'pageMonitorPage',true,true,'pageTbl',"btnLoadIdPageSummary","btnGetIdPageSummary","btnPostIdPageSummary","Page Summary");
+    var oPageFile = new objPieListenerPageStats('uniqFiles',socket,'pageMonitorFile',false,true,'fileTbl',"btnLoadIdFileSummary","btnGetIdFileSummary","btnPostIdFileSummary","File Summary");
 
-
-    //echart variables
-    var chartUniqFilesWebMap = echarts.init(document.getElementById('uniqFiles'));
-
-
-    var chartUniqPagesWebMap = echarts.init(document.getElementById('uniqPages'));
-
-    
     
     
 
     console.log("welcome to front end DOM of micro packet guardian");
 
-    const socket = io();
+    
 
     socket.on('pageMonitorUUID', (msg) => {
         //console.log(msg);
@@ -328,27 +381,6 @@ document.addEventListener("DOMContentLoaded", function() {
             pageMonitorUUID = msg;
             socket.emit("pageMonitor", "");
         }
-    });
-  
-    socket.on('pageMonitorPage', (msg) => {
-        console.log(msg);
-        var tmp = JSON.parse(msg);
-        //refreshChartPie(title,subText,loadType,lstData,importChart)
-        refreshChartPie("Page Summary","Load,Get,Post",pageMonitorPageType,tmp,chartUniqPagesWebMap,true);
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
-        document.getElementById('pageTbl').innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount"],map,true,["loadCount","getCount","postCount"]);
-    });
-
-    socket.on('pageMonitorFile', (msg) => {
-        console.log(msg);
-        var tmp = JSON.parse(msg);
-        refreshChartPie("File Summary","Load,Get,Post",pageMonitorFileType,tmp,chartUniqFilesWebMap,false);
-        const array = JSON.parse(msg);
-        const map = new Map(array);
-        //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
-        document.getElementById('fileTbl').innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount"],map,true,["loadCount","getCount","postCount"]);
     });
 
 });
