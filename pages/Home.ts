@@ -187,21 +187,25 @@ function refreshChartCategory(title,lstData,importChart,charType){
     importChart.setOption(options);
 }
 
-function refreshChartPie(title,subText,loadType,lstData,importChart,legend,showCode){
+function refreshChartPie(title,subText,loadType,lstData,importChart,legend,showCode,acceptedCodes){
 
     var lstLoadData = [];
 
     for(var tmpCount in lstData){
         //console.log(lstData[tmpCount][1]);
-        if(showCode == "all"){
-            lstLoadData.push({
-                value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
-            });
-        }else if(lstData[tmpCount][1][showCode] == showCode){
-            lstLoadData.push({
-                value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
-            });
+        //console.log(acceptedCodes,lstData[tmpCount][1]["statusCode"].toString());
+        if(acceptedCodes.includes(lstData[tmpCount][1]["statusCode"].toString())){
+            if(showCode == "all"){
+                lstLoadData.push({
+                    value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
+                });
+            }else if(lstData[tmpCount][1][showCode] == showCode){
+                lstLoadData.push({
+                    value: lstData[tmpCount][1][loadType], name: lstData[tmpCount][0]
+                });
+            }
         }
+        
         
     }
     var leg ={
@@ -359,7 +363,7 @@ class objPieListenerPageStats{
     }
 
     refreshPie(){
-        refreshChartPie(this.graphTitle,this.selectedPageType,this.selectedPageType,this.socketData,this.eChartListener,this.showLegends,this.showCode);
+        refreshChartPie(this.graphTitle,this.selectedPageType,this.selectedPageType,this.socketData,this.eChartListener,this.showLegends,this.showCode,this.viewingStatusCodes);
     }
 
     loadCheckedItemListener(){
@@ -377,6 +381,7 @@ class objPieListenerPageStats{
                     this.viewingStatusCodes = this.viewingStatusCodes.filter(item => item !== checkbox.value);
                 }
                     console.log(this.viewingStatusCodes);
+                    this.refreshPie();
                 });
         });
     }
