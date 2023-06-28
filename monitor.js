@@ -191,13 +191,13 @@ class objMonitor {
 
         var data = this.objTmpEngine.topPage();
 
-        data += this.objTmpEngine.mainMenu();
+        //data += this.objTmpEngine.mainMenu();
         //console.log(filePath);
         if (filePath == "/") {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
-          data += `<div class="d-flex justify-content-center"><div class="card-group p-5">`;
+          data += `<div class="d-flex"><div class="card-group p-5">`;
           data +=
             `        
           
@@ -319,8 +319,13 @@ class objMonitor {
           
           </div>
           
+          <div class="card border-success showDiagramTemp1 bg-dark w-100">
+  <h5 class="card-header text-white">MAP</h5>
+  <div class="card-body">
+  <div id="mainMap" style="width: 100%;height:100%;"></div>
+  </div>
+</div>
           
-          <div id="mainMap" style="width: 600px;height:400px;"></div>
           
           `;
 

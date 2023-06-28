@@ -2,6 +2,7 @@
 const json2html = require("node-json2html");
 
 class objTemplateEngine {
+  //<meta name="viewport" content="width=device-width, initial-scale=1">
   topPage() {
     return `<!doctype html>
         <html lang="en" data-bs-theme="auto">
@@ -9,7 +10,7 @@ class objTemplateEngine {
             
         
             <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
+            
             
             <meta name="description" content="">
             <title>~MicroPacketGuardian</title>
@@ -18,18 +19,13 @@ class objTemplateEngine {
         
   
         <script src="./"></script>
-            <style type="text/css">
-              body {
-                padding-top: 60px;
-                padding-bottom: 40px;
-              }
-            </style>
+          
         
           <style>
           #particles-js {
               position: fixed;
               width: 100%;
-              height: 100vh;
+              height: 100%;
               background-color: #000;
               z-index: -1;
           }
@@ -42,6 +38,7 @@ class objTemplateEngine {
         #main{
           position: absolute;
           width: 100%;
+          height:100%;
         }
         .tab-content{
             width: calc(90vw - 20px);

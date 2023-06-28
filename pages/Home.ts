@@ -321,6 +321,9 @@ class objPieListenerPageStats{
     viewingStatusCodes;
     constructor(elementId,socket,socketListenChannel,showLegends,showMoreVariables,tblData,btnLoadId,btnGetId,btnPostId,graphTitle,uniqCheckBoxName) {
         this.eChartListener = echarts.init(document.getElementById(elementId));
+        window.onresize = function() {
+          this.eChartListener.resize();
+        };
         this.socket = socket;
         this.socketListenChannel = socketListenChannel;
         this.selectedPageType = "loadCount";
@@ -456,6 +459,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 alert('You clicked on ' + params.name + ' with value ' + params.value[2]);
             }
         });
+
+        window.onresize = function() {
+          chart.resize();
+        };
     });
 
 
