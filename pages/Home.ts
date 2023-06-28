@@ -421,8 +421,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Register the map with ECharts
         echarts.registerMap('world', worldGeoJSON);
-      var nyRandom = Math.random();
-      console.log(nyRandom);
+
         // Set the chart options
         chart.setOption({
             geo: {
@@ -433,13 +432,16 @@ document.addEventListener("DOMContentLoaded", function() {
                     type: 'scatter',
                     coordinateSystem: 'geo',
                     data: [
-                        {name: 'New York', value: [-74.0059, 40.7128, 1]},
-                        {name: 'Los Angeles', value: [-118.2437, 34.0522, 2]},
-                        {name: 'London', value: [-0.1276, 51.5074, 3]},
-                        {name: 'Beijing', value: [116.4074, 39.9042, 4]}
+                        {name: 'New Yorks', value: [-74.0059, 40.7128, 1]},
+                        {name: 'Los Angeles', value: [-118.2437, 34.0522, 1]},
+                        {name: 'London', value: [-0.1276, 51.5074, 1]},
+                        {name: 'Beijing', value: [116.4074, 39.9042, 1]}
                     ],
                     symbolSize: function (val) {
                         return val[2] * 20;
+                    },
+                    itemStyle: {
+                        color: 'red' // Change the color of the circles
                     },
                     encode: {
                         value: 2
@@ -447,7 +449,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             ]
         });
+
+        // Add an event listener for 'click' events
+        chart.on('click', function (params) {
+            if (params.componentType === 'series') {
+                alert('You clicked on ' + params.name + ' with value ' + params.value[2]);
+            }
+        });
     });
+
 
 
 });
