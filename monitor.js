@@ -312,7 +312,17 @@ class objMonitor {
           //console.log(pageMapTemp1);
           //data += this.objTmpEngine.jToH(pageMapTemp1Tbl);
 
-          data += `</div></div>`;
+          data += `</div>
+          
+          
+          
+          
+          </div>
+          
+          
+          <div id="mainMap" style="width: 600px;height:400px;"></div>
+          
+          `;
 
           data += this.objTmpEngine.bottomPage();
 

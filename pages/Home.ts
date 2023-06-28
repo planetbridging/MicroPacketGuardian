@@ -412,6 +412,44 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+
+    fetch('./countries.json')
+    .then(response => response.json())
+    .then(worldGeoJSON => {
+        // Initialize the chart
+        var chart = echarts.init(document.getElementById('mainMap'));
+
+        // Register the map with ECharts
+        echarts.registerMap('world', worldGeoJSON);
+      var nyRandom = Math.random();
+      console.log(nyRandom);
+        // Set the chart options
+        chart.setOption({
+            geo: {
+                map: 'world'
+            },
+            series: [
+                {
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: [
+                        {name: 'New York', value: [-74.0059, 40.7128, 1]},
+                        {name: 'Los Angeles', value: [-118.2437, 34.0522, 2]},
+                        {name: 'London', value: [-0.1276, 51.5074, 3]},
+                        {name: 'Beijing', value: [116.4074, 39.9042, 4]}
+                    ],
+                    symbolSize: function (val) {
+                        return val[2] * 20;
+                    },
+                    encode: {
+                        value: 2
+                    }
+                }
+            ]
+        });
+    });
+
+
 });
 
 
