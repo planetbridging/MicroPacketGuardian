@@ -145,16 +145,16 @@ class objPageMonitor {
       }
 
       var geoMaptmp = cleanGeo[1];
-
+      var urlPath = fileHelper.getMainPath(req.url);
       if (!this.uniqGeoLocation.has(tmpLatLong)) {
-        geoMaptmp["pages"] = [req.url];
+        geoMaptmp["pages"] = [urlPath];
         console.log(geoMaptmp);
         this.uniqGeoLocation.set(tmpLatLong, geoMaptmp);
       } else {
         var geoMaptmpGet = this.uniqGeoLocation.get(tmpLatLong);
         var tmpUrlLst = geoMaptmpGet["pages"];
-        if (!tmpUrlLst.includes(req.url)) {
-          tmpUrlLst.push(req.url);
+        if (!tmpUrlLst.includes(urlPath)) {
+          tmpUrlLst.push(urlPath);
           geoMaptmpGet["pages"] = tmpUrlLst;
         }
 
