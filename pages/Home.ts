@@ -361,7 +361,7 @@ class objPieListenerPageStats{
             const array = JSON.parse(msg);
             const map = new Map(array);
             //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
-            document.getElementById(this.tblData).innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount","statusCode"],map,this.showMoreVariables,["loadCount","getCount","postCount","statusCode"]);
+            document.getElementById(this.tblData).innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount","statusCode","uniqCountry"],map,this.showMoreVariables,["loadCount","getCount","postCount","statusCode","uniqCountry"]);
         });
     }
 

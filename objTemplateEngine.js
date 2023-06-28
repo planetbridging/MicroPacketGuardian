@@ -10,6 +10,7 @@ class objTemplateEngine {
             
         
             <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
             
             
             <meta name="description" content="">
@@ -28,6 +29,7 @@ class objTemplateEngine {
               height: 100%;
               background-color: #000;
               z-index: -1;
+              top:0px;
           }
           body, html {
             padding: 0;
@@ -45,14 +47,14 @@ class objTemplateEngine {
         }
 
         .showDiagramTemp1 {
-          width: 600px;
-          height: 400px;
-          margin: 0 auto;
+          min-width: 40vw;
+          min-height: 400px;
         }
 
         .modal-90w {
           max-width: 90% !important;
         }
+
 
         </style>
         <script defer src="/socket.io/socket.io.js"></script>

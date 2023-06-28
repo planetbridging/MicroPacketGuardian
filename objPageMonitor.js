@@ -24,6 +24,9 @@ class objPageMonitor {
       loadCount: 1,
       getCount: 0,
       postCount: 0,
+      geoLstUniq: [],
+      geoLst: [],
+      uniqCountry: [],
     };
     var tmpUrl = req.url;
     if (this.uniqPageSummary.has(req.url) || getCount > 0) {
@@ -49,7 +52,34 @@ class objPageMonitor {
     return [foundType, tmpObjGrab, tmpUrl, found];
   }
 
-  getRequestCount(path, getCount, req, res, statusCode) {
+  cleanGeo(geo) {
+    var longitude = "";
+    var latitude = "";
+    var city = "";
+    var country = "";
+    var timeZone = "";
+    if (geo == null) {
+      return null;
+    }
+    if (geo["ll"] == null) {
+      return null;
+    }
+    latitude = geo["ll"][0];
+    longitude = geo["ll"][1];
+    city = geo["city"];
+    country = geo["country"];
+    timeZone = geo["timezone"];
+    var tmpGeo = {
+      latitude: latitude,
+      longitude: longitude,
+      city: city,
+      country: country,
+      timeZone: timeZone,
+    };
+    return tmpGeo;
+  }
+
+  getRequestCount(path, getCount, req, res, statusCode, geo) {
     /*console.log("-----------------------------------------");
     console.log(path);
     console.log("------");
@@ -65,6 +95,27 @@ class objPageMonitor {
     var foundType = processReqTmp[0];
     var tmpUrl = processReqTmp[2];
     var found = processReqTmp[3];
+
+    var cleanGeo = this.cleanGeo(geo);
+    var tmpLatLong = "";
+    if (cleanGeo != null) {
+      tmpLatLong = cleanGeo.latitude + "," + cleanGeo.longitude;
+
+      if (!tmpObjGrab.geoLstUniq.includes(tmpLatLong)) {
+        var tmpLstGeoCodes = tmpObjGrab.geoLstUniq;
+        var tmpLstGeoItems = tmpObjGrab.geoLst;
+        tmpLstGeoCodes.push(tmpLatLong);
+        tmpLstGeoItems.push(cleanGeo);
+        tmpObjGrab.geoLstUniq = tmpLstGeoCodes;
+        tmpObjGrab.geoLst = tmpLstGeoItems;
+      }
+
+      if (!tmpObjGrab.uniqCountry.includes(cleanGeo.country)) {
+        var tmpCountryLst = tmpObjGrab.uniqCountry;
+        tmpCountryLst.push(cleanGeo.country);
+        tmpObjGrab.uniqCountry = tmpCountryLst;
+      }
+    }
 
     tmpObjGrab["statusCode"] = statusCode;
     //tmpObjGrab.loadCount += 1;
@@ -85,10 +136,12 @@ class objPageMonitor {
       this.uniqFileSummary.set(tmpUrl, tmpObjGrab);
     }
 
+    //console.log(tmpObjGrab);
+
     this.uuid = uuidv4();
   }
 
-  postRequestCount(path, postCount, req, res, statusCode) {
+  postRequestCount(path, postCount, req, res, statusCode, geo) {
     /*console.log("-----------------------------------------");
     console.log(path);
     console.log("------");
@@ -104,6 +157,27 @@ class objPageMonitor {
     var foundType = processReqTmp[0];
     var tmpUrl = processReqTmp[2];
     var found = processReqTmp[3];
+
+    var cleanGeo = this.cleanGeo(geo);
+    var tmpLatLong = "";
+    if (cleanGeo != null) {
+      tmpLatLong = cleanGeo.latitude + "," + cleanGeo.longitude;
+
+      if (!tmpObjGrab.geoLstUniq.includes(tmpLatLong)) {
+        var tmpLstGeoCodes = tmpObjGrab.geoLstUniq;
+        var tmpLstGeoItems = tmpObjGrab.geoLst;
+        tmpLstGeoCodes.push(tmpLatLong);
+        tmpLstGeoItems.push(cleanGeo);
+        tmpObjGrab.geoLstUniq = tmpLstGeoCodes;
+        tmpObjGrab.geoLst = tmpLstGeoItems;
+      }
+
+      if (!tmpObjGrab.uniqCountry.includes(cleanGeo.country)) {
+        var tmpCountryLst = tmpObjGrab.uniqCountry;
+        tmpCountryLst.push(cleanGeo.country);
+        tmpObjGrab.uniqCountry = tmpCountryLst;
+      }
+    }
 
     tmpObjGrab["statusCode"] = statusCode;
     //tmpObjGrab.loadCount += 1;

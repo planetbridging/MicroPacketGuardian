@@ -9,6 +9,7 @@ const JavaScriptObfuscator = require("javascript-obfuscator");
 const socketIO = require("socket.io");
 const crypto = require("crypto");
 const bodyParser = require("body-parser");
+var geoip = require("geoip-lite");
 
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
@@ -96,41 +97,6 @@ class objMonitor {
         this.io.emit("pageMonitorFile", uniqFileSummary);
       });
 
-      /*const timer = setInterval(() => {
-        socket.emit("websitePathsUUID", this.websitePathsUUID);
-        socket.emit("websitePathCountUUID", this.websitePathCountUUID);
-        socket.emit("websiteFileCountUUID", this.websiteFileCountUUID);
-        socket.emit("websiteGetCountUUID", this.websiteGetCountUUID);
-        socket.emit("websitePostCountUUID", this.websitePostCountUUID);
-      }, 1000);
-
-      socket.on("websitePathCount", (message) => {
-        const mapStringPathCount = JSON.stringify(
-          Array.from(this.websitePathCount)
-        );
-        this.io.emit("websitePathCount", mapStringPathCount);
-      });
-
-      socket.on("websiteFileCount", (message) => {
-        const mapStringFileCount = JSON.stringify(
-          Array.from(this.websiteFileCount)
-        );
-        this.io.emit("websiteFileCount", mapStringFileCount);
-      });
-
-      socket.on("websitePaths", (message) => {
-        const mapString = JSON.stringify(Array.from(this.websitePaths));
-        const mapStringPathCount = JSON.stringify(
-          Array.from(this.websitePathCount)
-        );
-        const mapStringFileCount = JSON.stringify(
-          Array.from(this.websiteFileCount)
-        );
-        this.io.emit("websitePathCount", mapStringPathCount);
-        this.io.emit("websiteFileCount", mapStringFileCount);
-        this.io.emit("websitePaths", mapString);
-      });*/
-
       socket.on("disconnect", () => {
         console.log("A user disconnected");
       });
@@ -191,7 +157,7 @@ class objMonitor {
 
         var data = this.objTmpEngine.topPage();
 
-        //data += this.objTmpEngine.mainMenu();
+        data += this.objTmpEngine.mainMenu();
         //console.log(filePath);
         if (filePath == "/") {
           //filePath = "index.html";
@@ -321,9 +287,8 @@ class objMonitor {
           
           <div class="card border-success showDiagramTemp1 bg-dark w-100">
   <h5 class="card-header text-white">MAP</h5>
-  <div class="card-body">
-  <div id="mainMap" style="width: 100%;height:100%;"></div>
-  </div>
+  <div id="mainMap" class="card-body">
+
 </div>
           
           
@@ -410,6 +375,11 @@ class objMonitor {
         onProxyReq: (proxyReq, req, res) => {
           var tmpHeaders = proxyReq.getHeaders();
           //console.log("Raw Headers:", tmpHeaders);
+          //console.log(req.clientIp);
+          var ip = req.clientIp;
+          var geo = geoip.lookup(ip);
+
+          ///console.log(geo);
           var mainPath = "";
           var keyHeaders = Object.keys(tmpHeaders);
 
@@ -431,6 +401,7 @@ class objMonitor {
             tmpReq: req,
             tmpRes: res,
             reqBody: req.body,
+            geo: geo,
           };
 
           //console.log(this.oPageMonitor.uniqFileSummary);
@@ -453,7 +424,8 @@ class objMonitor {
               countPost,
               req.myData.tmpReq,
               req.myData.tmpRes,
-              proxyRes.statusCode
+              proxyRes.statusCode,
+              req.myData.geo
             );
           }
 
@@ -464,11 +436,21 @@ class objMonitor {
               getVariableCount,
               req.myData.tmpReq,
               req.myData.tmpRes,
-              proxyRes.statusCode
+              proxyRes.statusCode,
+              req.myData.geo
             );
             //console.log("getVariableCount:" + mainPathClean, getVariableCount);
           }
         },
+      });
+
+      this.appListener.use((req, res, next) => {
+        let ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        if (ip.substr(0, 7) == "::ffff:") {
+          ip = ip.substr(7);
+        }
+        req.clientIp = ip;
+        next();
       });
 
       this.appListener.use("/", proxyMiddleware);
