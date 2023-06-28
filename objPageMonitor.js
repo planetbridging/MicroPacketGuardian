@@ -148,7 +148,7 @@ class objPageMonitor {
       var urlPath = fileHelper.getMainPath(req.url);
       if (!this.uniqGeoLocation.has(tmpLatLong)) {
         geoMaptmp["pages"] = [urlPath];
-        console.log(geoMaptmp);
+        //console.log(geoMaptmp);
         this.uniqGeoLocation.set(tmpLatLong, geoMaptmp);
       } else {
         var geoMaptmpGet = this.uniqGeoLocation.get(tmpLatLong);
