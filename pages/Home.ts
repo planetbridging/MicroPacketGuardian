@@ -9,7 +9,7 @@
 });*/
 
 
-
+var worldGeoJSON;
 
 
 
@@ -360,6 +360,7 @@ class objPieListenerPageStats{
             this.refreshPie();
             const array = JSON.parse(msg);
             const map = new Map(array);
+            //console.log(array);
             //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
             document.getElementById(this.tblData).innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount","statusCode","uniqCountry"],map,this.showMoreVariables,["loadCount","getCount","postCount","statusCode","uniqCountry"]);
         });
@@ -390,18 +391,88 @@ class objPieListenerPageStats{
     }
 }
 
+function reloadWorldMap(data,chart){
+ 
+  /*[
+                        {name: 'New Yorks', value: [-74.0059, 40.7128, 1]},
+                        {name: 'Los Angeles', value: [-118.2437, 34.0522, 1]},
+                        {name: 'London', value: [-0.1276, 51.5074, 1]},
+                        {name: 'Beijing', value: [116.4074, 39.9042, 1]}
+                    ]*/
+        // Register the map with ECharts
+        echarts.registerMap('world', worldGeoJSON);
 
-document.addEventListener("DOMContentLoaded", function() {
+        // Set the chart options
+        chart.setOption({
+            geo: {
+                map: 'world'
+            },
+            series: [
+                {
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: data,
+                    symbolSize: function (val) {
+                        return val[2] * 20;
+                    },
+                    itemStyle: {
+                        color: 'red' // Change the color of the circles
+                    },
+                    encode: {
+                        value: 2
+                    }
+                }
+            ]
+        });
+        
+}
+
+
+document.addEventListener("DOMContentLoaded", async function() {
     //socketio variables
     var pageMonitorUUID = "";
+    worldGeoJSON = await fetch('./countries.json').then(response => response.json());
 
+    //console.log(worldGeoJSON);
     const socket = io();
 
     var oPageSummary = new objPieListenerPageStats('uniqPages',socket,'pageMonitorPage',true,true,'pageTbl',"btnLoadIdPageSummary","btnGetIdPageSummary","btnPostIdPageSummary","Page Summary","cPageSum");
     var oPageFile = new objPieListenerPageStats('uniqFiles',socket,'pageMonitorFile',false,true,'fileTbl',"btnLoadIdFileSummary","btnGetIdFileSummary","btnPostIdFileSummary","File Summary","cFileSum");
 
-    
-    
+
+    var chart = echarts.init(document.getElementById('mainMap'));
+    // Add an event listener for 'click' events
+    chart.on('click', function (params) {
+        if (params.componentType === 'series') {
+            //alert('You clicked on ' + params.name + ' with value ' + params.value[2]);
+            //console.log(params.data);
+            var lstHtml = `<ul class="list-group">`;
+
+            for(var i in params.data.pages){
+              lstHtml+= `<li class="list-group-item list-group-item-dark">`+params.data.pages[i]+`</li>`;
+            }
+            lstHtml+= `</ul>`;
+            document.getElementById("mapModalContents").innerHTML = `
+            <p>`+params.data.name+`</p>
+            `+lstHtml;
+         
+            var modal = new bootstrap.Modal(document.getElementById('mapModal'));
+            modal.show();
+        }
+    });
+
+    window.onresize = function() {
+      chart.resize();
+    };
+
+    socket.on("uniqGeoLocation", (msg) => {
+      //console.log(msg);
+      var tmp = JSON.parse(msg);
+      const map = new Map(tmp);
+      let values = Array.from(map.values());
+      reloadWorldMap(values,chart);
+  });
+    //reloadWorldMap(data)
 
     console.log("welcome to front end DOM of micro packet guardian");
 
@@ -416,54 +487,12 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
-    fetch('./countries.json')
+    /*fetch('./countries.json')
     .then(response => response.json())
     .then(worldGeoJSON => {
         // Initialize the chart
-        var chart = echarts.init(document.getElementById('mainMap'));
-
-        // Register the map with ECharts
-        echarts.registerMap('world', worldGeoJSON);
-
-        // Set the chart options
-        chart.setOption({
-            geo: {
-                map: 'world'
-            },
-            series: [
-                {
-                    type: 'scatter',
-                    coordinateSystem: 'geo',
-                    data: [
-                        {name: 'New Yorks', value: [-74.0059, 40.7128, 1]},
-                        {name: 'Los Angeles', value: [-118.2437, 34.0522, 1]},
-                        {name: 'London', value: [-0.1276, 51.5074, 1]},
-                        {name: 'Beijing', value: [116.4074, 39.9042, 1]}
-                    ],
-                    symbolSize: function (val) {
-                        return val[2] * 20;
-                    },
-                    itemStyle: {
-                        color: 'red' // Change the color of the circles
-                    },
-                    encode: {
-                        value: 2
-                    }
-                }
-            ]
-        });
-
-        // Add an event listener for 'click' events
-        chart.on('click', function (params) {
-            if (params.componentType === 'series') {
-                alert('You clicked on ' + params.name + ' with value ' + params.value[2]);
-            }
-        });
-
-        window.onresize = function() {
-          chart.resize();
-        };
-    });
+        
+    });*/
 
 
 

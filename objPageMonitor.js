@@ -7,9 +7,11 @@ class objPageMonitor {
   uniqFileSummary;
   acceptedFileTypes;
   uuid;
+  uniqGeoLocation;
   constructor(acceptedFileTypes) {
     this.uniqPageSummary = new Map();
     this.uniqFileSummary = new Map();
+    this.uniqGeoLocation = new Map();
     this.acceptedFileTypes = acceptedFileTypes;
   }
 
@@ -76,7 +78,98 @@ class objPageMonitor {
       country: country,
       timeZone: timeZone,
     };
-    return tmpGeo;
+
+    var tmpGeoItem = {
+      name: tmpGeo.country + " - " + tmpGeo.city,
+      value: [tmpGeo.longitude, tmpGeo.latitude, 1],
+    };
+    return [tmpGeo, tmpGeoItem];
+  }
+
+  //true = get, false = post for getOrPost
+  requestCount(
+    path,
+    getCount,
+    req,
+    res,
+    statusCode,
+    geo,
+    postCount,
+    getOrPost
+  ) {
+    if (getOrPost == false) {
+      getCount = 0;
+    }
+
+    var processReqTmp = this.processRequest(req, getCount);
+    var tmpObjGrab = processReqTmp[1];
+    var foundType = processReqTmp[0];
+    var tmpUrl = processReqTmp[2];
+    var found = processReqTmp[3];
+
+    var cleanGeo = this.cleanGeo(geo);
+    var tmpLatLong = "";
+
+    tmpObjGrab["statusCode"] = statusCode;
+
+    if (getCount > 0 && found) {
+      //console.log("===", req.url);
+      tmpObjGrab.getCount += getCount;
+    }
+
+    if (postCount > 0 && found) {
+      //console.log("===", req.url);
+      tmpObjGrab.postCount += postCount;
+    }
+
+    if (found) {
+      tmpObjGrab.loadCount += 1;
+    }
+
+    if (cleanGeo != null) {
+      tmpLatLong = cleanGeo[0].latitude + "," + cleanGeo[0].longitude;
+
+      if (!tmpObjGrab.geoLstUniq.includes(tmpLatLong)) {
+        var tmpLstGeoCodes = tmpObjGrab.geoLstUniq;
+        var tmpLstGeoItems = tmpObjGrab.geoLst;
+        tmpLstGeoCodes.push(tmpLatLong);
+        tmpLstGeoItems.push(cleanGeo[0]);
+        tmpObjGrab.geoLstUniq = tmpLstGeoCodes;
+        tmpObjGrab.geoLst = tmpLstGeoItems;
+      }
+
+      if (!tmpObjGrab.uniqCountry.includes(cleanGeo[0].country)) {
+        var tmpCountryLst = tmpObjGrab.uniqCountry;
+        tmpCountryLst.push(cleanGeo[0].country);
+        tmpObjGrab.uniqCountry = tmpCountryLst;
+      }
+
+      var geoMaptmp = cleanGeo[1];
+
+      if (!this.uniqGeoLocation.has(tmpLatLong)) {
+        geoMaptmp["pages"] = [req.url];
+        console.log(geoMaptmp);
+        this.uniqGeoLocation.set(tmpLatLong, geoMaptmp);
+      } else {
+        var geoMaptmpGet = this.uniqGeoLocation.get(tmpLatLong);
+        var tmpUrlLst = geoMaptmpGet["pages"];
+        if (!tmpUrlLst.includes(req.url)) {
+          tmpUrlLst.push(req.url);
+          geoMaptmpGet["pages"] = tmpUrlLst;
+        }
+
+        this.uniqGeoLocation.set(tmpLatLong, geoMaptmpGet);
+      }
+    }
+
+    if (foundType == "page") {
+      this.uniqPageSummary.set(tmpUrl, tmpObjGrab);
+      //console.log(this.uniqPageSummary);
+    } else {
+      this.uniqFileSummary.set(tmpUrl, tmpObjGrab);
+    }
+
+    this.uuid = uuidv4();
   }
 
   getRequestCount(path, getCount, req, res, statusCode, geo) {
@@ -89,116 +182,9 @@ class objPageMonitor {
     console.log("------");
     //console.log(res);
     console.log("==========================================");*/
-
-    var processReqTmp = this.processRequest(req, getCount);
-    var tmpObjGrab = processReqTmp[1];
-    var foundType = processReqTmp[0];
-    var tmpUrl = processReqTmp[2];
-    var found = processReqTmp[3];
-
-    var cleanGeo = this.cleanGeo(geo);
-    var tmpLatLong = "";
-    if (cleanGeo != null) {
-      tmpLatLong = cleanGeo.latitude + "," + cleanGeo.longitude;
-
-      if (!tmpObjGrab.geoLstUniq.includes(tmpLatLong)) {
-        var tmpLstGeoCodes = tmpObjGrab.geoLstUniq;
-        var tmpLstGeoItems = tmpObjGrab.geoLst;
-        tmpLstGeoCodes.push(tmpLatLong);
-        tmpLstGeoItems.push(cleanGeo);
-        tmpObjGrab.geoLstUniq = tmpLstGeoCodes;
-        tmpObjGrab.geoLst = tmpLstGeoItems;
-      }
-
-      if (!tmpObjGrab.uniqCountry.includes(cleanGeo.country)) {
-        var tmpCountryLst = tmpObjGrab.uniqCountry;
-        tmpCountryLst.push(cleanGeo.country);
-        tmpObjGrab.uniqCountry = tmpCountryLst;
-      }
-    }
-
-    tmpObjGrab["statusCode"] = statusCode;
+    /*
+     */
     //tmpObjGrab.loadCount += 1;
-
-    if (getCount > 0 && found) {
-      //console.log("===", req.url);
-      tmpObjGrab.getCount += getCount;
-    }
-
-    if (found) {
-      tmpObjGrab.loadCount += 1;
-    }
-
-    if (foundType == "page") {
-      this.uniqPageSummary.set(tmpUrl, tmpObjGrab);
-      //console.log(this.uniqPageSummary);
-    } else {
-      this.uniqFileSummary.set(tmpUrl, tmpObjGrab);
-    }
-
-    //console.log(tmpObjGrab);
-
-    this.uuid = uuidv4();
-  }
-
-  postRequestCount(path, postCount, req, res, statusCode, geo) {
-    /*console.log("-----------------------------------------");
-    console.log(path);
-    console.log("------");
-    console.log(getCount);
-    console.log("------");
-    console.log(req.url);
-    console.log("------");
-    //console.log(res);
-    console.log("==========================================");*/
-
-    var processReqTmp = this.processRequest(req, 0);
-    var tmpObjGrab = processReqTmp[1];
-    var foundType = processReqTmp[0];
-    var tmpUrl = processReqTmp[2];
-    var found = processReqTmp[3];
-
-    var cleanGeo = this.cleanGeo(geo);
-    var tmpLatLong = "";
-    if (cleanGeo != null) {
-      tmpLatLong = cleanGeo.latitude + "," + cleanGeo.longitude;
-
-      if (!tmpObjGrab.geoLstUniq.includes(tmpLatLong)) {
-        var tmpLstGeoCodes = tmpObjGrab.geoLstUniq;
-        var tmpLstGeoItems = tmpObjGrab.geoLst;
-        tmpLstGeoCodes.push(tmpLatLong);
-        tmpLstGeoItems.push(cleanGeo);
-        tmpObjGrab.geoLstUniq = tmpLstGeoCodes;
-        tmpObjGrab.geoLst = tmpLstGeoItems;
-      }
-
-      if (!tmpObjGrab.uniqCountry.includes(cleanGeo.country)) {
-        var tmpCountryLst = tmpObjGrab.uniqCountry;
-        tmpCountryLst.push(cleanGeo.country);
-        tmpObjGrab.uniqCountry = tmpCountryLst;
-      }
-    }
-
-    tmpObjGrab["statusCode"] = statusCode;
-    //tmpObjGrab.loadCount += 1;
-
-    if (postCount > 0 && found) {
-      //console.log("===", req.url);
-      tmpObjGrab.postCount += postCount;
-    }
-
-    if (found) {
-      tmpObjGrab.loadCount += 1;
-    }
-
-    if (foundType == "page") {
-      this.uniqPageSummary.set(tmpUrl, tmpObjGrab);
-      //console.log(this.uniqPageSummary);
-    } else {
-      this.uniqFileSummary.set(tmpUrl, tmpObjGrab);
-    }
-
-    this.uuid = uuidv4();
   }
 }
 

@@ -95,6 +95,11 @@ class objMonitor {
           Array.from(this.oPageMonitor.uniqFileSummary)
         );
         this.io.emit("pageMonitorFile", uniqFileSummary);
+
+        const uniqGeo = JSON.stringify(
+          Array.from(this.oPageMonitor.uniqGeoLocation)
+        );
+        this.io.emit("uniqGeoLocation", uniqGeo);
       });
 
       socket.on("disconnect", () => {
@@ -286,6 +291,25 @@ class objMonitor {
           </div>
           
           <div class="card border-success showDiagramTemp1 bg-dark w-100">
+
+
+
+          <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-90w">
+            <div class="modal-content bg-dark text-light">
+              <div class="modal-header">
+                <h5 class="modal-title" id="mapModalLabel">Map Clicked location</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div id="mapModalContents" class="modal-body">
+                This is the body of the modal.
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
   <h5 class="card-header text-white">MAP</h5>
   <div id="mainMap" class="card-body">
 
@@ -419,25 +443,31 @@ class objMonitor {
         onProxyRes: (proxyRes, req, res) => {
           if (req.myData.reqMethod == "POST" && req.myData.reqBody) {
             var countPost = this.countPostGetReq(req.myData.reqBody);
-            this.oPageMonitor.postRequestCount(
-              req.myData.mainPath,
-              countPost,
+
+            this.oPageMonitor.requestCount(
+              req.myData.mainPath, //
+              0,
               req.myData.tmpReq,
               req.myData.tmpRes,
               proxyRes.statusCode,
-              req.myData.geo
+              req.myData.geo,
+              countPost,
+              false
             );
           }
 
           if (req.myData.reqMethod == "GET") {
             var getVariableCount = this.countPostGetReq(req.myData.reqQuery);
-            this.oPageMonitor.getRequestCount(
+
+            this.oPageMonitor.requestCount(
               req.myData.mainPath,
               getVariableCount,
               req.myData.tmpReq,
               req.myData.tmpRes,
               proxyRes.statusCode,
-              req.myData.geo
+              req.myData.geo,
+              0,
+              true
             );
             //console.log("getVariableCount:" + mainPathClean, getVariableCount);
           }
