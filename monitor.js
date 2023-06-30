@@ -1,4 +1,5 @@
 const express = require("express");
+const useragent = require("express-useragent");
 const httpProxy = require("http-proxy");
 const fs = require("fs");
 const https = require("https");
@@ -51,6 +52,7 @@ class objMonitor {
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
     this.appListener = express();
+    this.appListener.use(useragent.express());
     this.oPageMonitor = new objPageMonitor(this.acceptedFileTypes);
 
     // parse application/x-www-form-urlencoded
@@ -73,6 +75,12 @@ class objMonitor {
 
   mapToMd5uuid(lstMap) {
     const mapString = JSON.stringify(Array.from(lstMap));
+    const md5String = calculateMD5Hash(mapString);
+    return md5String;
+  }
+
+  jToMD5Sign(j) {
+    const mapString = JSON.stringify(j);
     const md5String = calculateMD5Hash(mapString);
     return md5String;
   }
@@ -398,6 +406,18 @@ class objMonitor {
         changeOrigin: true,
         onProxyReq: (proxyReq, req, res) => {
           var tmpHeaders = proxyReq.getHeaders();
+
+          const userAgent = req.headers["user-agent"];
+          //console.log(`User-Agent is: ${userAgent}`);
+          //console.log(req.headers);
+
+          var tmpUserAgent = req.useragent;
+          if (Object.keys(tmpUserAgent).includes("geoIp")) {
+            delete tmpUserAgent.geoIp;
+          }
+          var tmpUserAgentId = this.jToMD5Sign(tmpUserAgent);
+          //console.log(tmpUserAgent);
+          //console.log(tmpUserAgentId);
           //console.log("Raw Headers:", tmpHeaders);
           //console.log(req.clientIp);
           var ip = req.clientIp;

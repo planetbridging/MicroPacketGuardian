@@ -11,10 +11,12 @@
   "dependencies": {
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
+    "express-useragent": "^1.0.15",
     "geoip-lite": "^1.4.7",
     "http-proxy": "^1.18.1",
     "http-proxy-middleware": "^2.0.6",
     "javascript-obfuscator": "^4.0.2",
+    "mysql2": "^3.4.3",
     "node-json2html": "^2.2.3",
     "socket.io": "^4.7.0",
     "uuid": "^9.0.0"
