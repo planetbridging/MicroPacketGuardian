@@ -16,6 +16,7 @@ var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
 var pageMapTemplates = require("./pageMappingTemplates");
 var objPageMonitor = require("./objPageMonitor");
+const objPacketListener = require("./objPacketListener");
 
 function calculateMD5Hash(data) {
   const md5Hash = crypto.createHash("md5");
@@ -47,6 +48,7 @@ class objMonitor {
   uiServer;
   oPageMonitor;
   runMainOnPort;
+  objOPacketListener;
   constructor(isHttpsEnabled, targetServiceUrl, runMainOnPort) {
     this.runMainOnPort = runMainOnPort;
     this.isHttpsEnabled = isHttpsEnabled;
@@ -71,6 +73,7 @@ class objMonitor {
     this.setupListener();
 
     this.setupUI();
+    this.objOPacketListener = new objPacketListener();
   }
 
   mapToMd5uuid(lstMap) {

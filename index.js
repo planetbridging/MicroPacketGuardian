@@ -26,3 +26,6 @@ function isImageResource(resourceUrl) {
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"];
   return imageExtensions.includes(fileExtension.toLowerCase());
 }
+
+// user needs to have this installed on linux
+//sudo apt-get install libpcap-dev
