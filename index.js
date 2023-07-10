@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const port = process.env.PORT || 3000;
 const targetServiceUrl = process.env.externalService;
+const targetIpListen = process.env.ipListen;
 
 var objMonitor = require("./monitor");
 
@@ -14,7 +15,12 @@ var objMonitor = require("./monitor");
   console.log(port, process.env.PORT);
   console.log("Server is running on port:", port);
 
-  var mainobjMonitor = new objMonitor(isHttpsEnabled, targetServiceUrl, port);
+  var mainobjMonitor = new objMonitor(
+    isHttpsEnabled,
+    targetServiceUrl,
+    port,
+    targetIpListen
+  );
   // Add your startup code or any other logic here
 
   //startup(isHttpsEnabled);

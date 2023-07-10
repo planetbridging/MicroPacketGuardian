@@ -49,7 +49,7 @@ class objMonitor {
   oPageMonitor;
   runMainOnPort;
   objOPacketListener;
-  constructor(isHttpsEnabled, targetServiceUrl, runMainOnPort) {
+  constructor(isHttpsEnabled, targetServiceUrl, runMainOnPort, targetIpListen) {
     this.runMainOnPort = runMainOnPort;
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
@@ -73,7 +73,7 @@ class objMonitor {
     this.setupListener();
 
     this.setupUI();
-    this.objOPacketListener = new objPacketListener();
+    this.objOPacketListener = new objPacketListener(targetIpListen);
   }
 
   mapToMd5uuid(lstMap) {

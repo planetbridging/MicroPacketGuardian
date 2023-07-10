@@ -1,20 +1,48 @@
 //this is only for testing purposes will change to golang for better performance
 const os = require("os");
+const pcap = require("pcap");
 class objPacketListener {
-  constructor() {
+  listeningOn = null;
+  constructor(targetIpListen) {
+    this.targetIpListen = targetIpListen;
     this.lstData = this.createItemsForPorts();
     this.setupDevice();
   }
   setupDevice() {
-    const interfaces = os.networkInterfaces();
-    //console.log(interfaces);
+    /*const interfaces = os.networkInterfaces();
+    console.log(interfaces);
     for (var i in interfaces) {
       //console.log(interfaces[i]);
-      /*var keys = Object.keys(interfaces[i]);
-      console.log(keys);
-      if (keys.includes("address")) {
-      }*/
+      for (var s in interfaces[i]) {
+        var keys = Object.keys(interfaces[i][s]);
+        //console.log(keys);
+        if (keys.includes("address")) {
+          if (interfaces[i][s]["address"] == this.targetIpListen) {
+            console.log(interfaces[i]);
+          }
+        }
+      }
     }
+    */
+    var nicDevices = pcap.findalldevs();
+    for (var n in nicDevices) {
+      var keys = Object.keys(nicDevices[n]);
+      if (keys.includes("addresses")) {
+        for (var i in nicDevices[n]["addresses"]) {
+          var keys2 = Object.keys(nicDevices[n]["addresses"][i]);
+          if (keys2.includes("addr")) {
+            if (nicDevices[n]["addresses"][i]["addr"] == this.targetIpListen) {
+              this.listeningOn = nicDevices[n]["name"];
+              console.log(
+                this.listeningOn,
+                nicDevices[n]["addresses"][i]["addr"]
+              );
+            }
+          }
+        }
+      }
+    }
+    this.custom3Test();
   }
 
   createItemsForPorts() {
@@ -35,10 +63,14 @@ class objPacketListener {
   }
 
   async custom3Test() {
-    const pcapSession = pcap.createSession("wlp3s0", "");
-    pcapSession.on("packet", (rawPacket) => {
-      this.processPacket(rawPacket);
-    });
+    if (this.listeningOn != null) {
+      const pcapSession = pcap.createSession(this.listeningOn, "");
+      pcapSession.on("packet", (rawPacket) => {
+        this.processPacket(rawPacket);
+      });
+    } else {
+      console.log("failed to start listener");
+    }
   }
 
   processPacket(rawPacket) {
@@ -65,7 +97,7 @@ class objPacketListener {
       }*/
 
     const packet = pcap.decode.packet(rawPacket);
-
+    //console.log(packet);
     // Extract Ethernet information
     const srcMac = packet.payload.shost;
     const dstMac = packet.payload.dhost;
@@ -155,9 +187,9 @@ class objPacketListener {
         if (dportNumTmp >= 1 && dportNumTmp <= 65535) {
           dportNumTmp -= 1;
 
-          lstData[dportNumTmp].dstPort_portPacketCount += 1;
+          this.lstData[dportNumTmp].dstPort_portPacketCount += 1;
 
-          lstData[dportNumTmp].lstListening.push(tmpData);
+          //lstData[dportNumTmp].lstListening.push(tmpData);
 
           //console.log("-------------------------");
           //console.log(lstData[dportNumTmp].portPacketCount);
@@ -170,7 +202,8 @@ class objPacketListener {
           srcPortNumTmp -= 1;
 
           this.lstData[srcPortNumTmp].srcPort_portPacketCount += 1;
-          console.log(this.lstData[srcPortNumTmp]);
+          //console.log(this.lstData[srcPortNumTmp]);
+          //console.log(tmpData);
         }
       } catch {}
       //var jsonObj = replaceNullUndefined(tmpData);
