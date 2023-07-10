@@ -3,9 +3,16 @@ const os = require("os");
 const pcap = require("pcap");
 class objPacketListener {
   listeningOn = null;
+  lstDataClearedPortCount;
+  lstData5Seconds;
+  lstData1Minute;
+  lstData1Hour;
+  lstData1Day;
+
   constructor(targetIpListen) {
     this.targetIpListen = targetIpListen;
     this.lstData = this.createItemsForPorts();
+    this.lstDataClearedPortCount = this.lstData;
     this.setupDevice();
   }
   setupDevice() {
@@ -53,7 +60,7 @@ class objPacketListener {
         port: port,
         dstPort_portPacketCount: 0,
         srcPort_portPacketCount: 0,
-        lstListening: [],
+        //lstListening: [],
         // Add any other properties you need for the item
       };
       items.push(item);
@@ -71,6 +78,64 @@ class objPacketListener {
     } else {
       console.log("failed to start listener");
     }
+  }
+
+  resetTimers() {
+    const timer5Seconds = setInterval(() => {
+      //socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      this.lstData5Seconds = this.this.lstDataClearedPortCount;
+    }, 5000);
+    const timer1Min = setInterval(() => {
+      //socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      this.lstData1Minute = this.this.lstDataClearedPortCount;
+    }, 1000 * 60);
+    const timer1hour = setInterval(() => {
+      //socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      this.lstData1Hour = this.this.lstDataClearedPortCount;
+    }, 1000 * 60 * 60);
+
+    const timer1Day = setInterval(() => {
+      //socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      this.lstData1Day = this.this.lstDataClearedPortCount;
+    }, 1000 * 60 * 60 * 24);
+  }
+
+  savePacket(srcOrDst, tmpData, portNumber) {
+    if (srcOrDst == "dst") {
+      this.lstData[portNumber].dstPort_portPacketCount += 1;
+      try {
+        this.lstData5Seconds[portNumber].dstPort_portPacketCount += 1;
+      } catch {}
+
+      try {
+        this.lstData1Minute[portNumber].dstPort_portPacketCount += 1;
+      } catch {}
+      try {
+        this.lstData1Hour[portNumber].dstPort_portPacketCount += 1;
+      } catch {}
+      try {
+        this.lstData1Day[portNumber].dstPort_portPacketCount += 1;
+      } catch {}
+    } else if (srcOrDst == "src") {
+      this.lstData[portNumber].srcPort_portPacketCount += 1;
+      try {
+        this.lstData5Seconds[portNumber].srcPort_portPacketCount += 1;
+      } catch {}
+      try {
+        this.lstData1Minute[portNumber].srcPort_portPacketCount += 1;
+      } catch {}
+      try {
+        this.lstData1Hour[portNumber].srcPort_portPacketCount += 1;
+      } catch {}
+      try {
+        this.lstData1Day[portNumber].srcPort_portPacketCount += 1;
+      } catch {}
+    }
+
+    /*  lstData5Seconds;
+  lstData1Minute;
+  lstData1Hour;
+  lstData1Day;*/
   }
 
   processPacket(rawPacket) {
@@ -187,7 +252,7 @@ class objPacketListener {
         if (dportNumTmp >= 1 && dportNumTmp <= 65535) {
           dportNumTmp -= 1;
 
-          this.lstData[dportNumTmp].dstPort_portPacketCount += 1;
+          this.savePacket("dst", tmpData, dportNumTmp);
 
           //lstData[dportNumTmp].lstListening.push(tmpData);
 
@@ -200,8 +265,13 @@ class objPacketListener {
         var srcPortNumTmp = Number(srcPort);
         if (srcPortNumTmp >= 1 && srcPortNumTmp <= 65535) {
           srcPortNumTmp -= 1;
+          this.savePacket("src", tmpData, srcPortNumTmp);
+          //this.lstData[srcPortNumTmp].srcPort_portPacketCount += 1;
 
-          this.lstData[srcPortNumTmp].srcPort_portPacketCount += 1;
+          /*lstData5Seconds;
+  lstData1Minute;
+  lstData1Hour;
+  lstData1Day;*/
           //console.log(this.lstData[srcPortNumTmp]);
           //console.log(tmpData);
         }
