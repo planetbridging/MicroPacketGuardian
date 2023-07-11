@@ -96,9 +96,15 @@ class objMonitor {
         socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
 
         socket.emit(
+          "totalUsedPorts",
+          JSON.stringify(Array.from(this.objOPacketListener.usedPorts))
+        );
+        socket.emit(
           "totalPortCount",
           JSON.stringify(Array.from(this.objOPacketListener.lstData))
         );
+
+        //console.log(this.objOPacketListener.usedPorts);
 
         /*console.log(this.objOPacketListener.lstData);
   lstData5Seconds;

@@ -8,9 +8,11 @@ class objPacketListener {
   lstData1Minute;
   lstData1Hour;
   lstData1Day;
+  usedPorts;
 
   constructor(targetIpListen) {
     this.targetIpListen = targetIpListen;
+    this.usedPorts = new Map();
     this.lstData = this.createItemsForPorts();
     this.lstDataClearedPortCount = this.lstData;
     this.setupDevice();
@@ -101,6 +103,7 @@ class objPacketListener {
   }
 
   savePacket(srcOrDst, tmpData, portNumber) {
+    this.usedPorts.set(portNumber);
     if (srcOrDst == "dst") {
       this.lstData[portNumber].dstPort_portPacketCount += 1;
       try {
