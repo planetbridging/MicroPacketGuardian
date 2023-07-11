@@ -94,6 +94,17 @@ class objMonitor {
 
       const timer = setInterval(() => {
         socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+
+        socket.emit(
+          "totalPortCount",
+          JSON.stringify(Array.from(this.objOPacketListener.lstData))
+        );
+
+        /*console.log(this.objOPacketListener.lstData);
+  lstData5Seconds;
+  lstData1Minute;
+  lstData1Hour;
+  lstData1Day;*/
       }, 1000);
 
       socket.on("pageMonitor", (message) => {
