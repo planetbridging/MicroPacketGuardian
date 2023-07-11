@@ -4,11 +4,12 @@ const pcap = require("pcap");
 class objPacketListener {
   listeningOn = null;
   lstDataClearedPortCount;
-  lstData5Seconds;
-  lstData1Minute;
-  lstData1Hour;
-  lstData1Day;
-  usedPorts;
+  lstData5Seconds = [];
+  lstData1Minute = [];
+  lstData1Hour = [];
+  lstData1Day = [];
+  lstDataMap = new Map();
+  usedPorts = new Map();
 
   constructor(targetIpListen) {
     this.targetIpListen = targetIpListen;
@@ -104,8 +105,18 @@ class objPacketListener {
 
   savePacket(srcOrDst, tmpData, portNumber) {
     this.usedPorts.set(portNumber);
+    //console.log(this.usedPorts);
+    //console.log(portNumber);
     if (srcOrDst == "dst") {
-      this.lstData[portNumber].dstPort_portPacketCount += 1;
+      //this.lstData[portNumber].dstPort_portPacketCount += 1;
+      if (lstDataMap.has(portNumber)) {
+        var shallowCopy = lstDataMap.get(portNumber);
+        //shallowCopy["dstPortCount"] += 1;
+        shallowCopy[0] += 1;
+        lstDataMap.set(portNumber, shallowCopy);
+      } else {
+        lstDataMap.set(portNumber, [1, 0]);
+      }
       try {
         this.lstData5Seconds[portNumber].dstPort_portPacketCount += 1;
       } catch {}
@@ -120,7 +131,15 @@ class objPacketListener {
         this.lstData1Day[portNumber].dstPort_portPacketCount += 1;
       } catch {}
     } else if (srcOrDst == "src") {
-      this.lstData[portNumber].srcPort_portPacketCount += 1;
+      //this.lstData[portNumber].srcPort_portPacketCount += 1;
+      if (lstDataMap.has(portNumber)) {
+        var shallowCopy = lstDataMap.get(portNumber);
+        //shallowCopy["dstPortCount"] += 1;
+        shallowCopy[1] += 1;
+        lstDataMap.set(portNumber, shallowCopy);
+      } else {
+        lstDataMap.set(portNumber, [0, 1]);
+      }
       try {
         this.lstData5Seconds[portNumber].srcPort_portPacketCount += 1;
       } catch {}
@@ -134,6 +153,8 @@ class objPacketListener {
         this.lstData1Day[portNumber].srcPort_portPacketCount += 1;
       } catch {}
     }
+
+    console.log(lstDataMap);
 
     /*  lstData5Seconds;
   lstData1Minute;

@@ -10,6 +10,7 @@
 
 
 var worldGeoJSON;
+var usedPorts = new Map();
 
 
 
@@ -306,6 +307,37 @@ function createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys){
   </table>`;
 }
 
+class objPieListenerPortStats{
+  id;
+  socketListenChannel;
+  socket;
+  constructor(socket,id,channel){
+    this.id = id;
+    this.socketListenChannel = channel;
+    this.socket = socket;
+    this.socketListner();
+  }
+
+  socketListner(){
+    //var self = this;
+
+    this.socket.on(this.socketListenChannel, (msg) => {
+        //console.log(msg);
+        var tmp = JSON.parse(msg);
+        console.log(tmp);
+        /*this.socketData = tmp;
+        //refreshChartPie(title,subText,loadType,lstData,importChart)
+        this.refreshPie();
+        const array = JSON.parse(msg);
+        const map = new Map(array);
+        //console.log(array);
+        //createSimpleMapToTbl(titles,lst,subKeysEnabled,lstSubKeys)
+        document.getElementById(this.tblData).innerHTML = createSimpleMapToTbl(["Page","loadCount","getCount","postCount","statusCode","uniqCountry"],map,this.showMoreVariables,["loadCount","getCount","postCount","statusCode","uniqCountry"]);
+        */
+      });
+}
+}
+
 class objPieListenerPageStats{
     eChartListener;
     socket;
@@ -439,6 +471,18 @@ document.addEventListener("DOMContentLoaded", async function() {
     var oPageSummary = new objPieListenerPageStats('uniqPages',socket,'pageMonitorPage',true,true,'pageTbl',"btnLoadIdPageSummary","btnGetIdPageSummary","btnPostIdPageSummary","Page Summary","cPageSum");
     var oPageFile = new objPieListenerPageStats('uniqFiles',socket,'pageMonitorFile',false,true,'fileTbl',"btnLoadIdFileSummary","btnGetIdFileSummary","btnPostIdFileSummary","File Summary","cFileSum");
 
+    var ototalPortCount = new objPieListenerPortStats(socket,"totalPorts","totalPortCount");
+
+    socket.on("totalUsedPorts", (msg) => {
+      //console.log(msg);
+      var tmp = JSON.parse(msg);
+      //console.log(tmp);
+      let map = tmp.reduce((obj, item) => {
+        obj[item[0]] = item[1];
+        return obj;
+      }, {});
+      usedPorts = map;
+    });
 
     var chart = echarts.init(document.getElementById('mainMap'));
     // Add an event listener for 'click' events

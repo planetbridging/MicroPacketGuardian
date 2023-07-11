@@ -386,6 +386,29 @@ class objTemplateEngine {
     return data;
   }
 
+  createCardTemplate1(title, content, id) {
+    const data = [
+      {
+        tag: "div",
+        class: "card border-success mb-3 m-2 showDiagramTemp1 bg-dark",
+        html: [
+          {
+            tag: "div",
+            class: "card-header bg-transparent border-success",
+            html: title,
+          },
+          {
+            id: id,
+            tag: "div",
+            class: "card-body",
+            html: content,
+          },
+        ],
+      },
+    ];
+    return data;
+  }
+
   createSearchCard(header, body, footer) {
     const data = [
       {
@@ -674,6 +697,83 @@ class objTemplateEngine {
   </div>`;
     return html;
   }
+
+  panelTemplate(id, title, html) {
+    const data = [
+      {
+        tag: "div",
+        class: "card border-success mb-3 m-2 showDiagramTemp1 bg-dark",
+
+        html: [
+          {
+            tag: "div",
+            class: "card-header bg-transparent border-success",
+            html: [
+              {
+                tag: "div",
+                class: "modal fade",
+                html: [
+                  {
+                    tag: "div",
+                    class: "modal-dialog modal-90w",
+                    html: [
+                      {
+                        tag: "div",
+                        class: "modal-content bg-dark text-light",
+
+                        html: [
+                          {
+                            tag: "div",
+                            class: "modal-header",
+                            html: [
+                              {
+                                tag: "h5",
+                                class: "modal-title",
+                                text: title,
+                              },
+                            ],
+                          },
+                          /*{
+                            id: id,
+                            class: "modal-body",
+                            html: html,
+                          },*/
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                tabindex: -1,
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    return data;
+  }
+
+  /*                                      <div class="card border-success mb-3 m-2 showDiagramTemp1 bg-dark">
+
+                                                <div class="card-header bg-transparent border-success">
+  
+        
+                                                title
+                                        <div class="modal fade" id="exampleModalFile" tabindex="-1" aria-labelledby="exampleModalLabelFile" aria-hidden="true">
+                                        <div class="modal-dialog modal-90w">
+                                      <div class="modal-content bg-dark text-light">
+                                      <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabelFile">Page Summary</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+            <div id="fileTbl" class="modal-body">
+              This is the body of the modal.
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>*/
 }
 
 module.exports = objTemplateEngine;

@@ -94,24 +94,42 @@ class objMonitor {
 
       const timer = setInterval(() => {
         socket.emit("pageMonitorUUID", this.oPageMonitor.uuid);
+      }, 1000);
 
+      const timer5Sec = setInterval(() => {
         socket.emit(
           "totalUsedPorts",
           JSON.stringify(Array.from(this.objOPacketListener.usedPorts))
         );
         socket.emit(
           "totalPortCount",
-          JSON.stringify(Array.from(this.objOPacketListener.lstData))
+          JSON.stringify(this.objOPacketListener.lstData)
         );
+        socket.emit(
+          "secsPortCount",
+          JSON.stringify(this.objOPacketListener.lstData5Seconds)
+        );
+        socket.emit(
+          "minPortCount",
+          JSON.stringify(this.objOPacketListener.lstData1Minute)
+        );
+        socket.emit(
+          "HourPortCount",
+          JSON.stringify(this.objOPacketListener.lstData1Hour)
+        );
+        socket.emit(
+          "dayPortCount",
+          JSON.stringify(this.objOPacketListener.lstData1Day)
+        );
+      }, 5000);
 
-        //console.log(this.objOPacketListener.usedPorts);
+      //console.log(this.objOPacketListener.usedPorts);
 
-        /*console.log(this.objOPacketListener.lstData);
-  lstData5Seconds;
-  lstData1Minute;
-  lstData1Hour;
-  lstData1Day;*/
-      }, 1000);
+      /*console.log(this.objOPacketListener.lstData);
+lstData5Seconds;
+lstData1Minute;
+lstData1Hour;
+lstData1Day;*/
 
       socket.on("pageMonitor", (message) => {
         const uniqPageSummary = JSON.stringify(
@@ -196,7 +214,19 @@ class objMonitor {
           //filePath = "index.html";
 
           //data += this.objTmpEngine.jToH(templateBanner());
+
           data += `<div class="d-flex"><div class="card-group p-5">`;
+          data += this.objTmpEngine.jToH(
+            this.objTmpEngine.createCardTemplate1(
+              `<p class="text-white">Total ports</p>`,
+              `<p class="text-white">Please wait while loading</p>`,
+              "totalPorts"
+            )
+          );
+          data += `</div></div>`;
+
+          data += `<div class="d-flex"><div class="card-group p-5">`;
+
           data +=
             `        
           
