@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/oschwald/geoip2-golang"
 )
 
@@ -41,6 +43,14 @@ func testGeo() {
 func main() {
 	fmt.Println("welcome to go micro packet guardian")
 	testGeo()
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	startProxy(os.Getenv("externalService"))
+
 	app := fiber.New()
 
 	// Create a new endpoint
