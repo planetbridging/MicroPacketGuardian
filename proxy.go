@@ -31,4 +31,5 @@ func startProxy(proxyTo string, PORThttps string, certificatePath string, privke
 	})
 
 	log.Fatal(http.ListenAndServeTLS(":"+PORThttps, certificatePath, privkeyPath, nil))
+	//log.Fatal(http.ListenAndServe(":8080", nil))
 }
