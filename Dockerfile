@@ -1,7 +1,7 @@
 FROM alpine:3.14
 
 ENV NODE_VERSION 16.14.2
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache nodejs npm python3 make g++ libpcap-dev
 WORKDIR /app
 
 
