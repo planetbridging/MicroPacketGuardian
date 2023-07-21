@@ -594,25 +594,26 @@ lstData1Day;*/
       this.appListener.use("/", proxyMiddleware);
 
       if (this.isHttpsEnabled == "https") {
-        try {
-          /*const privateKey = fs.readFileSync(process.env.privkey, "utf8");
-          const certificate = fs.readFileSync(process.env.cert, "utf8");
-          const ca = fs.readFileSync(process.env.chain, "utf8");
+      }
 
-          const credentials = {
-            key: privateKey,
-            cert: certificate,
-            ca: ca,
-          };*/
+      try {
+        /*const privateKey = fs.readFileSync(process.env.privkey, "utf8");
+        const certificate = fs.readFileSync(process.env.cert, "utf8");
+        const ca = fs.readFileSync(process.env.chain, "utf8");
 
-          privateKey = fs.readFileSync(process.env.privkey, "utf8");
-          certificate = fs.readFileSync(process.env.cert, "utf8");
-          credentials = { key: privateKey, cert: certificate };
+        const credentials = {
+          key: privateKey,
+          cert: certificate,
+          ca: ca,
+        };*/
 
-          this.hServerhttps = https.createServer(credentials, this.appListener);
-        } catch (ex) {
-          console.log(ex);
-        }
+        privateKey = fs.readFileSync(process.env.privkey, "utf8");
+        certificate = fs.readFileSync(process.env.cert, "utf8");
+        credentials = { key: privateKey, cert: certificate };
+
+        this.hServerhttps = https.createServer(credentials, this.appListener);
+      } catch (ex) {
+        console.log(ex);
       }
 
       this.hServer = http.createServer(this.appListener);
