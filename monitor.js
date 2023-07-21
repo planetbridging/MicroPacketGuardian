@@ -612,6 +612,9 @@ lstData1Day;*/
         credentials = { key: privateKey, cert: certificate };
 
         this.hServerhttps = https.createServer(credentials, this.appListener);
+        this.hServerHttps.listen(this.portHttps, () => {
+          console.log("Proxy server listening on port", this.portHttps);
+        });
       } catch (ex) {
         console.log(ex);
       }
