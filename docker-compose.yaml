@@ -5,6 +5,10 @@ services:
     ports:
       - "${DOCKERPORT}:58123"
       - "${PORT}:${PORT}"
-      - "${PORThttps}:${PORT}"
+      - "${PORThttps}:${PORThttps}"
+    volumes:
+      - "${privkey}:${privkey}"
+      - "${cert}:${cert}"
+      - "${chain}:${chain}"
       
     restart: always
