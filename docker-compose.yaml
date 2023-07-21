@@ -5,4 +5,6 @@ services:
     ports:
       - "${DOCKERPORT}:58123"
       - "${PORT}:${PORT}"
+      - "${PORThttps}:${PORThttps}"
+      
     restart: always
