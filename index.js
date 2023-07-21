@@ -2,7 +2,8 @@ require("dotenv").config();
 
 //const proxy = httpProxy.createProxyServer();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3012;
+const portHttps = process.env.PORThttps || 3011;
 const targetServiceUrl = process.env.externalService;
 const targetIpListen = process.env.ipListen;
 
@@ -19,7 +20,8 @@ var objMonitor = require("./monitor");
     isHttpsEnabled,
     targetServiceUrl,
     port,
-    targetIpListen
+    targetIpListen,
+    portHttps
   );
   // Add your startup code or any other logic here
 

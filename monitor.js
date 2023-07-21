@@ -12,6 +12,8 @@ const crypto = require("crypto");
 const bodyParser = require("body-parser");
 var geoip = require("geoip-lite");
 
+require("dotenv").config();
+
 var objTemplateEngine = require("./objTemplateEngine");
 const loadFilesIntoMap = require("./load");
 var pageMapTemplates = require("./pageMappingTemplates");
@@ -27,6 +29,7 @@ function calculateMD5Hash(data) {
 class objMonitor {
   isHttpsEnabled = "";
   hServer;
+  hServerhttps;
   acceptedFileTypes = [
     ".jpg",
     ".jpeg",
@@ -49,7 +52,15 @@ class objMonitor {
   oPageMonitor;
   runMainOnPort;
   objOPacketListener;
-  constructor(isHttpsEnabled, targetServiceUrl, runMainOnPort, targetIpListen) {
+  portHttps;
+  constructor(
+    isHttpsEnabled,
+    targetServiceUrl,
+    runMainOnPort,
+    targetIpListen,
+    portHttps
+  ) {
+    this.portHttps = portHttps;
     this.runMainOnPort = runMainOnPort;
     this.isHttpsEnabled = isHttpsEnabled;
     this.targetServiceUrl = targetServiceUrl;
@@ -67,6 +78,7 @@ class objMonitor {
     this.appUI = express();
     this.uiServer = http.createServer(this.appUI);
     this.io = socketIO(this.uiServer);
+    //this.tryHttps();
     this.objTmpEngine = new objTemplateEngine();
     this.fileMap = loadFilesIntoMap("./public");
     //this.listenerPaths();
@@ -74,6 +86,32 @@ class objMonitor {
 
     this.setupUI();
     this.objOPacketListener = new objPacketListener(targetIpListen);
+  }
+
+  tryHttps() {
+    try {
+      if (this.isHttpsEnabled == "https") {
+        console.log("Server is running on port:", this.portHttps);
+        // Certificate
+        const privateKey = fs.readFileSync(process.env.privkey, "utf8");
+        const certificate = fs.readFileSync(process.env.cert, "utf8");
+        const ca = fs.readFileSync(process.env.chain, "utf8");
+
+        const credentials = {
+          key: privateKey,
+          cert: certificate,
+          ca: ca,
+        };
+
+        const httpsServer = https.createServer(credentials, this.appUI);
+
+        httpsServer.listen(this.portHttps, () => {
+          console.log("HTTPS Server running on port ", this.portHttps);
+        });
+      }
+    } catch (ex) {
+      console.log(ex);
+    }
   }
 
   mapToMd5uuid(lstMap) {
@@ -555,15 +593,29 @@ lstData1Day;*/
 
       this.appListener.use("/", proxyMiddleware);
 
-      if (this.isHttpsEnabled) {
-        privateKey = fs.readFileSync("path/to/privatekey.pem", "utf8");
-        certificate = fs.readFileSync("path/to/certificate.pem", "utf8");
-        credentials = { key: privateKey, cert: certificate };
+      if (this.isHttpsEnabled == "https") {
+        try {
+          /*const privateKey = fs.readFileSync(process.env.privkey, "utf8");
+          const certificate = fs.readFileSync(process.env.cert, "utf8");
+          const ca = fs.readFileSync(process.env.chain, "utf8");
 
-        this.hServer = https.createServer(credentials, this.appListener);
-      } else {
-        this.hServer = http.createServer(this.appListener);
+          const credentials = {
+            key: privateKey,
+            cert: certificate,
+            ca: ca,
+          };*/
+
+          privateKey = fs.readFileSync(process.env.privkey, "utf8");
+          certificate = fs.readFileSync(process.env.cert, "utf8");
+          credentials = { key: privateKey, cert: certificate };
+
+          this.hServerhttps = https.createServer(credentials, this.appListener);
+        } catch (ex) {
+          console.log(ex);
+        }
       }
+
+      this.hServer = http.createServer(this.appListener);
 
       this.hServer.listen(this.runMainOnPort, () => {
         console.log("Proxy server listening on port", this.runMainOnPort);
