@@ -1,14 +1,13 @@
-version: "3"
+# docker-compose.yml
+version: '3'
 services:
   app:
     build: .
     ports:
-      - "${DOCKERPORT}:58123"
-      - "${PORT}:${PORT}"
-      - "${PORThttps}:${PORThttps}"
-    volumes:
-      - "${privkey}:${privkey}"
-      - "${cert}:${cert}"
-      - "${chain}:${chain}"
-      
+      - "3012:3012"
+      - "58123:58123"
+      - "3011:3011"
+    env_file:
+      - .env
+
     restart: always
