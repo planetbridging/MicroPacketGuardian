@@ -39,3 +39,19 @@ The above diagram illustrates the flow of the system. User requests are intercep
 ```shell
 git clone https://github.com/planetbridging/MicroPacketGuardian.git
 ```
+
+## Make sure to install sudo apt-get install libpcap-dev
+
+```
+sudo apt-get install libpcap-dev
+```
+
+## .env
+
+```
+PORT=3012
+PORThttps=3011
+externalService=http://<THEWEBSITE YOUWANT>
+ipListen=localhost
+PROTOCOL=http
+```
